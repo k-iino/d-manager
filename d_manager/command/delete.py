@@ -1,43 +1,44 @@
 import argparse
-import os
 
 from d_manager.command import BaseCMD
 
 from d_manager.book import Book
 from d_manager.book.loader import ProductFoodPickleLoader
-from d_manager.book.loader import InteractivelyProductFoodLoader
+from d_manager.book.deleter import ProductFoodDeleter
 from d_manager.book.dumper import PickleFileDumper
 
 SUB_COMMANDS = {'product_food': 'product_food',
                 }
 
 
-class AddInteractivelyCMD(BaseCMD):
+class DeleteCMD(BaseCMD):
     def do(self):
         sub = self.args[0]
 
         if sub == SUB_COMMANDS['product_food']:
             args = self.args[1:]
-            parser = argparse.ArgumentParser(description='対話的に市販食品を追加する。')
+            parser = argparse.ArgumentParser(description='市販食品を指定した Pickle ファイルから削除する。')
             parser.add_argument("-i", "--input", type=str,
                                 required=True,
-                                help="食品を追加する Pickle ファイル")
+                                help="食品を削除する Pickle ファイル")
+            parser.add_argument("-t", "--target_id", type=str,
+                                required=True,
+                                help="削除する食品の id")
+            # parser.add_argument("-f", "--force", type=str,
+            #                     required=False,
+            #                     help="確認なしに削除する")
             _args = parser.parse_args(args)
+            pickle_file = _args.input
+            target_id = _args.target_id
 
             book = Book()
-            pickle_file = _args.input
             book.set_loader(ProductFoodPickleLoader(pickle_file))
-            # 存在する場合は先に読み込んでおく。
-            if os.path.exists(pickle_file):
-                book.load()
-
-            # 対話的に読み込む
-            book.set_loader(InteractivelyProductFoodLoader())
             book.load()
+
+            book.set_deleter(ProductFoodDeleter(target_id=target_id))
+            book.delete()
 
             # 追記モード（'ab'）でファイルを開いて書き込むと、
             # 追記前のデータが残るため取り出したときに追加したエントリが取り出せないので注意。
             book.set_dumper(PickleFileDumper(pickle_file, mode='wb'))
             book.dump()
-        else:
-            raise Exception('サブコマンド %s は未定義です。' % sub)

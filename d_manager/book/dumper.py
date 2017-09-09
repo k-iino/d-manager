@@ -8,7 +8,7 @@ class DumperBase:
     def __init__(self):
         pass
 
-    def dump(self, ):
+    def dump(self, entries):
         raise NotImplementedError
 
 
@@ -23,6 +23,7 @@ class PickleFileDumper(DumperBase):
     def __init__(self, file, mode='wb'):
         self.__file = file
         self.__mode = mode
+        super(PickleFileDumper, self).__init__()
 
     def dump(self, entries):
         with open(self.__file, mode=self.__mode) as f:

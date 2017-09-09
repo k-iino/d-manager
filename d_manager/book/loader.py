@@ -1,9 +1,13 @@
 import sys
-import openpyxl
 import pickle
+import openpyxl
+import yaml
+
 from d_manager.data import Food
 from d_manager.data.entry import ProductFoodEntry
 from d_manager.data.entry import STOFC2015r7FoodEntry
+
+from d_manager.book.helper import InteractiveHelper
 
 
 class LoaderBase:
@@ -159,7 +163,7 @@ class STOFC2015r7FoodExcelLoader(ExcelLoaderBase):
                     group_name, tag_name = self.__classify(group, row[cls_.TAG_NAME_INDEX].value)
                     # ID
                     _id = int(row[cls_.ID_INDEX].value)
-                    food = Food(', '.join(tag_name), '100g')
+                    food = Food(' '.join(tag_name), '100g')  # CSV 出力のことを考えて空白区切りと
                     food.energy = str(presume_value(row[cls_.ENERGY_INDEX].value)) + cls_.ENERGY_UNIT
                     food.protein = str(presume_value(row[cls_.PROTEIN_INDEX].value)) + cls_.PROTEIN_UNIT
                     food.lipid = str(presume_value(row[cls_.LIPID_INDEX].value)) + cls_.LIPID_UNIT
@@ -174,88 +178,32 @@ class STOFC2015r7FoodExcelLoader(ExcelLoaderBase):
 
 
 class ProductFoodPickleLoader(FileLoaderBase):
-    """対話的に市販食品を読み込むローダー"""
+    """ Pickle ファイル内の市販食品を読み込むローダー"""
     def load(self, entries):
         if self.file == sys.stdin:
             entries.update(pickle.load(sys.stdin))
         else:
             with open(self.file, mode='rb') as f:
-                entries.update(pickle.load(f))
+                for e in pickle.load(f).values():
+                    if isinstance(e, ProductFoodEntry):
+                        entries[e.id] = e
+                    else:
+                        raise ValueError('不正な値です。 Pickle ファイルに予想とは異なる型のエントリが含まれています。')
 
 
-class InteractivelyLoaderBase(LoaderBase):
-    """対話的に値を読み込むベースクラス"""
-    
-    def load(self, entries):
-        raise NotImplementedError
-    
-    @staticmethod
-    def get_value(checker, caster):
-        """値を対話的に得る"""
-        err_msg = '不正な入力値。'
-        # プロンプトによる入力と、入力値の確認
-        while True:
-            i = input('?> ')
-            if not i and checker(i):
-                try:
-                    return caster(i)
-                except ValueError:
-                    print(err_msg)
-            else:
-                print(err_msg)
-
-    def get_str(self):
-        """文字列を対話的に得る"""
-        return self.get_value(lambda: True, lambda x: x)
-
-    def get_integer(self):
-        """整数値を対話的に読み込む"""
-        return self.get_value(lambda x: x.isdecimal(), lambda x: int(x))
-
-    def get_float(self):
-        """動点小数点数を対話的に読み込む"""
-        return self.get_value(lambda x: True, lambda x: float(x))
-
-    @staticmethod
-    def choose_from(choices, fold=4, sep=','):
-        """与えられた選択肢から一つ選ばせる。"""
-        msg = ''
-        i = 0
-        for name in choices:
-            if (i % fold) == 0:
-                msg += '\n'
-
-            msg += ' {}: {}{}'.format(i + 1, name, sep)
-            i += 1
-            if i == len(choices):
-                msg = msg.rstrip(sep)
-        else:
-            msg += '\n'
-            print(msg)
-
-        # プロンプトによる入力と、入力値の確認
-        while True:
-            _input = input('?> ')
-            if _input.isdecimal() and (0 < int(_input) <= len(choices)):
-                choice = choices[int(_input) - 1]
-                print('{} が選択されました。'.format(choice))
-                return choice
-            else:
-                print('不正な入力値。')
-
-
-class InteractivelyProductFoodLoader(InteractivelyLoaderBase):
+class InteractivelyProductFoodLoader(LoaderBase):
     """対話的に市販食品を読み込む"""
     @staticmethod
     def __print_msg(*msgs, sep='\n'):
         print(sep.join(msgs))
 
     def load(self, entries):
+        helper = InteractiveHelper
         # 食品分類
         #
         # 日本食品標準成分表 2015 に収載されている食品群から選択
         self.__print_msg('食品のグループを番号で選択してください。')
-        group = self.choose_from(STOFC2015r7FoodEntry.FOOD_GROUPS)
+        group_number, group_name = helper.choose_from_dict(STOFC2015r7FoodEntry.FOOD_GROUPS)
 
         # 商品名および名称
         #
@@ -265,26 +213,25 @@ class InteractivelyProductFoodLoader(InteractivelyLoaderBase):
         # 参考
         #   加工食品品質表示基準改正（わかりやすい表示方法等）に関するQ&A｜消費者庁 - http://www.caa.go.jp/foods/qa/kakou04_qa.html#a09
         self.__print_msg('食品の「商品名」を入力してください。', '注意: 一括表示内の「名称」のことではない。')
-        product_name = self.get_str()
+        product_name = helper.get_str()
         self.__print_msg('食品の「名称」を入力してください。', '注意: 包装内の一括表示内の「名称」欄に記載されているもの。')
-        common_name = self.get_str()
+        common_name = helper.get_str()
 
         # 製造所の所在地及び製造者の氏名又は名称
         self.__print_msg('製造者の氏名又は名称を入力してください。',
                          '備考: 包装内の一括表示内の「製造者」欄に記載されているもの。',
                          '     複数記載されている場合、は最初に記載されているものを採用すること。')
-        maker = self.get_str()
+        maker = helper.get_str()
 
         # 栄養成分表示
         #
         # 食品単位は、100g、100ml、１食分、１包装その他の１単位のいずれか（食品表示法）
         dimensionless_unit = 'dimensionless'
         nutrient_units = ['100g', '100ml', '1' + dimensionless_unit]
-
         self.__print_msg('栄養成分表示の食品単位を入力してください。',
                          '食品単位は、100g、100ml、もしくはその他の1単位（１杯、１食分、１包装など）',
                          '注意: 栄養成分表示に記載されている食品単位を優先すること。')
-        nutrient_declaration_unit = self.choose_from(nutrient_units)
+        _, nutrient_declaration_unit = helper.choose_from_list(nutrient_units)
         # 栄養成分表示の食品単位の物理量
         if nutrient_declaration_unit == '1' + dimensionless_unit:
             # 食品単位が1単位（１杯、１食分、１包装など）のどれかの場合は、
@@ -295,9 +242,9 @@ class InteractivelyProductFoodLoader(InteractivelyLoaderBase):
                              '量の単位を以下から選択してください。')
             # 食品1単位（１杯、１食分、１包装など）の物理量の単位
             one_packet_units = ['kg', 'g', 'ml', 'l']
-            _unit = self.choose_from(one_packet_units)
+            _, _unit = helper.choose_from_list(one_packet_units)
             self.__print_msg('量の数値を記入してください。')
-            _quantity = self.get_float()
+            _quantity = str(helper.get_float())
             food_amount = ''.join((_quantity, _unit))
         else:
             # 食品単位が物理量だった場合はそれをそのまま利用する
@@ -316,24 +263,33 @@ class InteractivelyProductFoodLoader(InteractivelyLoaderBase):
                          '食品単位ごとの値です。入力された食品単位={}'.format(nutrient_declaration_unit))
         # 熱量
         self.__print_msg('カロリーを入力してください。単位={}'.format(food_energy_unit))
-        energy_quantity = self.get_integer()
+        energy_quantity = str(helper.get_integer())
         # タンパク質
         self.__print_msg('タンパク質を入力してください。単位={}'.format(food_mass_unit))
-        protein_quantity = self.get_float()
+        protein_quantity = str(helper.get_float())
         # 脂質
         self.__print_msg('脂質を入力してください。単位={}'.format(food_mass_unit))
-        lipid_quantity = self.get_float()
+        lipid_quantity = str(helper.get_float())
         # 炭水化物
         self.__print_msg('炭水化物を入力してください。単位={}'.format(food_mass_unit))
-        carbohydrate_quantity = self.get_float()
+        carbohydrate_quantity = str(helper.get_float())
         # 食塩相当量
         self.__print_msg('食塩相当量を入力してください。単位={}'.format(food_mass_unit))
-        salt_equivalent_quantity = self.get_float()
+        salt_equivalent_quantity = str(helper.get_float())
 
+        #
         # 食品情報の生成
         #
-        # 処理上の識別のための情報
-        index = 1
+
+        # グループ内で一意な番号は自動で採番する
+        # グループ内で最も大きな番号を持つものより 1 つ大きいものを採用する。
+        max_id_in_group = 0
+        for e in entries.values():
+            if e.group_number == group_number and e.id_in_group > max_id_in_group:
+                max_id_in_group = e.id_in_group
+        else:
+            id_in_group = max_id_in_group + 1
+
         food = Food(common_name, food_amount)
         # 栄養成分
         food.energy = ''.join((energy_quantity, food_energy_unit))
@@ -342,8 +298,12 @@ class InteractivelyProductFoodLoader(InteractivelyLoaderBase):
         food.carbohydrate = ''.join((carbohydrate_quantity, food_mass_unit))
         food.salt = ''.join((salt_equivalent_quantity, food_mass_unit))
         # 製品情報
-        entry = ProductFoodEntry(index, product_name, maker, food)
-        # 分類
-        food.classification = group, common_name
+        entry = ProductFoodEntry(group_number, id_in_group, product_name, maker, food)
 
-        entries[index] = entry
+        self.__print_msg('以下を登録しますが、よろしいですか？')
+        print(yaml.dump(entry.to_dict(), allow_unicode=True))
+        if helper.confirm_yes_of_no():
+            entries[entry.id] = entry
+            print('{} が登録されました。'.format(entry.id))
+        else:
+            print('追加登録がキャンセルされました。')

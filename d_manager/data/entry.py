@@ -17,13 +17,20 @@ class FoodEntry(EntryBase):
 
 
 class ProductFoodEntry(FoodEntry):
-    def __init__(self, _id, product_name, maker_name, food):
+    def __init__(self, group_number, id_in_group, product_name, maker_name, food):
+        self.group_number = group_number
+        self.id_in_group = id_in_group
         self.product_name = product_name
         self.maker_name = maker_name
+        # 識別子 ::= <グループ番号（2桁）> <グループ内で一意な番号（4桁）>
+        _id = group_number * 10000 + id_in_group
         super(ProductFoodEntry, self).__init__(_id, food)
 
     def to_dict(self):
         return {'id': self.id,
+                'classification': {'group_name': STOFC2015r7FoodEntry.FOOD_GROUPS[self.group_number],
+                                   'group_number': self.group_number,
+                                   'id_in_group': self.id_in_group},
                 'product': {'name': self.product_name,
                             'maker': self.maker_name},
                 'food': self.food.to_dict()}

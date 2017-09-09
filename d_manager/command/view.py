@@ -4,9 +4,11 @@ import argparse
 from d_manager.book import Book
 from d_manager.command import BaseCMD
 from d_manager.book.loader import STOFC2015r7FoodPickleLoader
+from d_manager.book.loader import ProductFoodPickleLoader
 from d_manager.book.dumper import YAMLDumper
 
-SUB_COMMANDS = {'stofc2015r7': 'stofc2015r7',  # 日本食品標準成分表2015年版（七訂）の変換
+SUB_COMMANDS = {'product_food': 'product_food',
+                'stofc2015r7': 'stofc2015r7',  # 日本食品標準成分表2015年版（七訂）の変換
                 }
 
 
@@ -16,7 +18,7 @@ class ViewPickleAsYamlCMD(BaseCMD):
 
         if sub == SUB_COMMANDS['stofc2015r7']:
             args = self.args[1:]
-            parser = argparse.ArgumentParser(description='日本食品標準成分表2015年版（七訂）のエクセルファイルを Pickle ファイルにコンバートする.')
+            parser = argparse.ArgumentParser(description='日本食品標準成分表2015年版（七訂）の Pickle ファイルの内容を YAML 形式に表示。')
             parser.add_argument("-i", "--input", type=str,
                                 required=True,
                                 help="入力ファイル")
@@ -27,8 +29,20 @@ class ViewPickleAsYamlCMD(BaseCMD):
             # else:
             #     _input = sys.stdin
             _input = _args.input
-
             book = Book(STOFC2015r7FoodPickleLoader(_input),
+                        YAMLDumper())
+            book.load()
+            book.dump()
+
+        elif sub == SUB_COMMANDS['product_food']:
+            args = self.args[1:]
+            parser = argparse.ArgumentParser(description='市販食品の Pickle ファイルの内容を YAML 形式に表示。')
+            parser.add_argument("-i", "--input", type=str,
+                                required=True,
+                                help="入力ファイル")
+            _args = parser.parse_args(args)
+            _input = _args.input
+            book = Book(ProductFoodPickleLoader(_input),
                         YAMLDumper())
             book.load()
             book.dump()
