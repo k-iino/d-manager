@@ -1,3 +1,9 @@
+# 成果物
+*.pickle
+
+# 入力ファイル群
+*.xlsx
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
