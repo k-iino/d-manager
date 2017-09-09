@@ -43,13 +43,18 @@ class STOFC2015r7FoodPickleLoader(FileLoaderBase):
             entries.update(pickle.load(sys.stdin))
         else:
             with open(self.file, mode='rb') as f:
-                entries.update(pickle.load(f))
+                for e in pickle.load(f).values():
+                    if isinstance(e, STOFC2015r7FoodEntry):
+                        entries[e.id] = e
+                    else:
+                        raise ValueError('不正な値です。 Pickle ファイルに予想とは異なる型のエントリが含まれています。')
 
 
 class STOFC2015r7FoodExcelLoader(ExcelLoaderBase):
     """日本食品標準成分表2015年版（七訂）のエクセル用ローダー"""
 
     # EXCEL ファイル内での各情報が格納されているセルの列番号
+    GROUP_ID_INDEX = 0
     ID_INDEX = 1
     TAG_NAME_INDEX = 3
     ENERGY_INDEX = 5
@@ -140,29 +145,42 @@ class STOFC2015r7FoodExcelLoader(ExcelLoaderBase):
 
         cls_ = STOFC2015r7FoodExcelLoader
         for sheet in self.book:
-            # シートのタイトル名が食品になっている
-            # e.g. '18　調加工食品類'
-            group = sheet.title.split()[1].strip()
-            if group not in STOFC2015r7FoodEntry.FOOD_GROUPS:
-                raise ValueError('{} は不正なグループ名'.format(group))
-
             for row in sheet.rows:
                 if len(row) <= 0:
                     continue
 
                 # 有効な食品情報の含まれる行だけを抽出する
                 if row[0].value is not None and row[0].value.isdigit():
-                    #
+                    # 食品群（e.g. 調加工食品類）の名称は食品群を表すセル内の値から取得する。
+                    # 全ての食品群をまとめた Excel ファイルをインポートする場合は、シート名などから
+                    # 食品群の文字列を取得することが出来ないため。
+                    group_id = int(row[0].value)
+                    group = STOFC2015r7FoodEntry.FOOD_GROUPS[group_id]
                     group_name, tag_name = self.__classify(group, row[cls_.TAG_NAME_INDEX].value)
+                    # ID
+                    _id = int(row[cls_.ID_INDEX].value)
                     food = Food(', '.join(tag_name), '100g')
                     food.energy = str(presume_value(row[cls_.ENERGY_INDEX].value)) + cls_.ENERGY_UNIT
                     food.protein = str(presume_value(row[cls_.PROTEIN_INDEX].value)) + cls_.PROTEIN_UNIT
                     food.lipid = str(presume_value(row[cls_.LIPID_INDEX].value)) + cls_.LIPID_UNIT
                     food.carbohydrate = str(presume_value(row[cls_.CARBO_INDEX].value)) + cls_.CARBO_UNIT
                     food.salt = str(presume_value(row[cls_.SALT_INDEX].value)) + cls_.SALT_UNIT
-                    #
-                    _id = int(row[cls_.ID_INDEX].value)
+
                     entries[_id] = STOFC2015r7FoodEntry(_id, group_name, tag_name, food)
+
+            # 最初のシートのみを読み込む
+            # 一括でまとまっている Excel ファイルは「別表」シートが付属しており、これはパースできない。
+            break
+
+
+class ProductFoodPickleLoader(FileLoaderBase):
+    """対話的に市販食品を読み込むローダー"""
+    def load(self, entries):
+        if self.file == sys.stdin:
+            entries.update(pickle.load(sys.stdin))
+        else:
+            with open(self.file, mode='rb') as f:
+                entries.update(pickle.load(f))
 
 
 class InteractivelyLoaderBase(LoaderBase):
@@ -227,6 +245,7 @@ class InteractivelyLoaderBase(LoaderBase):
 
 
 class InteractivelyProductFoodLoader(InteractivelyLoaderBase):
+    """対話的に市販食品を読み込む"""
     @staticmethod
     def __print_msg(*msgs, sep='\n'):
         print(sep.join(msgs))

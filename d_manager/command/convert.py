@@ -1,13 +1,15 @@
 import argparse
 
 from d_manager.command import BaseCMD
-from d_manager.command import SUB_COMMANDS
 
 from d_manager.book import Book
 from d_manager.book.loader import STOFC2015r7FoodExcelLoader
 from d_manager.book.loader import STOFC2015r7FoodPickleLoader
 from d_manager.book.dumper import PickleStdOutDumper
 from d_manager.book.dumper import PickleFileDumper
+
+SUB_COMMANDS = {'stofc2015r7': 'stofc2015r7',  # 日本食品標準成分表2015年版（七訂）の変換
+                }
 
 
 class ConvertToPickleCMD(BaseCMD):
