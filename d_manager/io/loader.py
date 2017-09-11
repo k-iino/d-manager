@@ -212,9 +212,9 @@ class InteractivelyProductFoodLoader(LoaderBase):
         #
         # 参考
         #   加工食品品質表示基準改正（わかりやすい表示方法等）に関するQ&A｜消費者庁 - http://www.caa.go.jp/foods/qa/kakou04_qa.html#a09
-        self.__print_msg('食品の「商品名」を入力してください。', '注意: 一括表示内の「名称」のことではない。')
+        self.__print_msg('食品の「商品名」を入力してください。', '注意: 一括表示内の「名称」のことではなく「商品名」です。')
         product_name = helper.get_str()
-        self.__print_msg('食品の「名称」を入力してください。', '注意: 包装内の一括表示内の「名称」欄に記載されているもの。')
+        self.__print_msg('食品の「名称」を入力してください。', '注意: 包装内の一括表示内の「名称」欄に記載されているものです。')
         common_name = helper.get_str()
 
         # 製造所の所在地及び製造者の氏名又は名称
@@ -229,15 +229,15 @@ class InteractivelyProductFoodLoader(LoaderBase):
         dimensionless_unit = 'dimensionless'
         nutrient_units = ['100g', '100ml', '1' + dimensionless_unit]
         self.__print_msg('栄養成分表示の食品単位を入力してください。',
-                         '食品単位は、100g、100ml、もしくはその他の1単位（１杯、１食分、１包装など）',
-                         '注意: 栄養成分表示に記載されている食品単位を優先すること。')
+                         '食品単位は、栄養成分表示の基準となる量で 100g、100ml、もしくはその他の1単位で表記されています。',
+                         '注意: 商品の内容量ではないので注意。')
         _, nutrient_declaration_unit = helper.choose_from_list(nutrient_units)
         # 栄養成分表示の食品単位の物理量
         if nutrient_declaration_unit == '1' + dimensionless_unit:
             # 食品単位が1単位（１杯、１食分、１包装など）のどれかの場合は、
             # その1単位の物理量を明示的に指定する必要がある。
             self.__print_msg('食品の1単位（１杯、１食分、１包装など）の物理量を記入してください。',
-                             '注意: 栄養成分表示の食品単位が物理量と正しくひも付けられるように記入すること。'
+                             '栄養成分表示の食品単位に併記されている物理量を記入してくだい。'
                              ''
                              '量の単位を以下から選択してください。')
             # 食品1単位（１杯、１食分、１包装など）の物理量の単位

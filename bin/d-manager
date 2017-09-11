@@ -18,20 +18,17 @@ if __name__ == '__main__':
     # 呼び出し元のシンボリックリンクを辿って、パスをセットする。
     project_workdir = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), os.pardir))
     sys.path.append(project_workdir)
-    
+
     cmd_module = sys.argv[1]
-    genre = cmd_module.split('_')[0]
-
-    # rename 'abc_def_ghi' to 'AbcDefGhiCMD'
-    l = list()
-    for n in cmd_module.split('_'):
-        l.append(n.capitalize())
-    else:
-        cmd_class = '%sCMD' % ''.join(l)
-
-    C_ = getattr(__import__('d_manager.command.%s' % genre,
-                            fromlist=[cmd_class]), cmd_class)
-    cmd = C_(sys.argv[2:])
+    cmd_class_name = cmd_module.capitalize()
+    # C_ = getattr(__import__('d_manager.command.%s' % genre,
+    #                         fromlist=[cmd_class]), cmd_class)
+    # cmd = C_(sys.argv[2:])
+    # cmd.do()
+    cmd_class = getattr(__import__('d_manager.command.%s' % cmd_module,
+                                   fromlist=[cmd_class_name]),
+                        cmd_class_name)
+    cmd = cmd_class(sys.argv[2:])
     cmd.do()
 
     sys.exit(0)
