@@ -1,17 +1,16 @@
 import argparse
 
-from d_manager.command import BaseCMD
-
-from d_manager.book import Book
-from d_manager.book.loader import ProductFoodPickleLoader
+from d_manager.book import BaseBook
 from d_manager.book.deleter import ProductFoodDeleter
 from d_manager.book.dumper import PickleFileDumper
+from d_manager.command import BaseCommand
+from d_manager.io.book_loader import ProductFoodPickleLoader
 
 SUB_COMMANDS = {'product_food': 'product_food',
                 }
 
 
-class DeleteCMD(BaseCMD):
+class DeleteCommand(BaseCommand):
     def do(self):
         sub = self.args[0]
 
@@ -31,7 +30,7 @@ class DeleteCMD(BaseCMD):
             pickle_file = _args.input
             target_id = _args.target_id
 
-            book = Book()
+            book = BaseBook()
             book.set_loader(ProductFoodPickleLoader(pickle_file))
             book.load()
 

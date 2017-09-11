@@ -95,6 +95,24 @@ class BaseFood:
                                  }
                 }
 
+    def get_label_of_list(self):
+        return [NAME_LABEL,
+                AMOUNT_LABEL,
+                ENERGY_LABEL,
+                PROTEIN_LABEL,
+                LIPID_LABEL,
+                CARBOHYDRATE_LABEL,
+                SALT_LABEL]
+
+    def to_list(self):
+        return [self.name,
+                self.amount,
+                self.energy,
+                self.protein,
+                self.lipid,
+                self.carbohydrate,
+                self.salt]
+
     # Energy
     @property
     def energy(self):

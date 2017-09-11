@@ -17,15 +17,15 @@ class ProductFoodBook(BaseBook):
         for group_number in FOOD_GROUPS.keys():
             self._max_id_in_group[group_number] = 0
 
-    def append(self, entry, group_number, id_in_group=None):
-        """指定したグループにエントリを追加する"""
-        if not isinstance(entry, ProductFood):
-            raise ValueError('Not support type. type={}'.format(type(entry)))
+    def append(self, product_food, group_number, id_in_group=None):
+        """指定したグループに食品情報を追加する"""
+        if not isinstance(product_food, ProductFood):
+            raise ValueError('Not support type. type={}'.format(type(product_food)))
         
         if group_number not in FOOD_GROUPS.keys():
             raise ValueError('Not found group number. number={}'.format(group_number))
 
-        # ID を採番する
+        # ID を採番する。
         if not id_in_group:
             id_in_group = self._max_id_in_group[group_number] + 1
             self._max_id_in_group[group_number] = id_in_group
@@ -37,7 +37,10 @@ class ProductFoodBook(BaseBook):
             else:
                 self._max_id_in_group[group_number] = id_in_group
 
-        self._entries[group_number][id_in_group] = entry
+        # 食品に分類情報を渡す
+        product_food.classify(group_number, id_in_group)
+
+        self._entries[group_number][id_in_group] = product_food
         # 採番した ID を返す
         return id_in_group
 
@@ -70,3 +73,8 @@ class ProductFoodBook(BaseBook):
         c = self._entries[group_number][id_in_group]
         del self._entries[group_number][id_in_group]
         return c
+
+    def generator(self):
+        for group_num in FOOD_GROUPS.keys():
+            for food in self._entries[group_num].values():
+                yield food

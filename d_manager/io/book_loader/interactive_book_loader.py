@@ -1,3 +1,5 @@
+import yaml
+
 from d_manager.food import FOOD_GROUPS
 from d_manager.food.product_food import ProductFood
 
@@ -200,7 +202,7 @@ class InteractiveProductFoodBookLoader:
 
         # 登録
         self.__print_msg('以下をグループ「{}」登録しますが、よろしいですか？'.format(FOOD_GROUPS[group_number]))
-        print(product_food.to_yaml())
+        print(yaml.dump(product_food.to_dict()))
         if Helper.confirm_yes_of_no():
             _id = book.append(product_food, group_number)
             print('グループ内の ID:{} として登録されました。'.format(_id))

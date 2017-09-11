@@ -1,7 +1,7 @@
 import os
 import argparse
 
-from d_manager.command.add import CommandBase
+from d_manager.command.add import BaseCommand
 
 from d_manager.book.product_food_book import ProductFoodBook
 from d_manager.io.book_loader.pickle_book_loader import PickleProductFoodBookLoader
@@ -9,8 +9,8 @@ from d_manager.io.book_loader.interactive_book_loader import InteractiveProductF
 from d_manager.io.book_writer.pickle_book_writer import PickleBookWriter
 
 
-class AddProductFoodCommand(CommandBase):
-    """市販の食品を追加するコマンド"""
+class AddProductFoodCommand(BaseCommand):
+    """市販の食品を Book に追加するコマンド"""
     def __init__(self, args):
         parser = argparse.ArgumentParser(description='対話的に市販食品を追加する。')
         parser.add_argument("-i", "--input", type=str,
@@ -20,7 +20,6 @@ class AddProductFoodCommand(CommandBase):
 
     def do(self):
         pickle_file = self.__args.input
-
         book = ProductFoodBook()
 
         # 存在する場合は先に読み込んでおく。

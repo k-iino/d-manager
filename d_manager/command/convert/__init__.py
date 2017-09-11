@@ -1,11 +1,11 @@
 from d_manager.command import BaseCommand
-from d_manager.command.add import product_food
+from d_manager.command.convert import stofc2015_xlsx
 
-TARGETS = {'product_food': product_food.AddProductFoodCommand,
+TARGETS = {'stofc2015_excel': stofc2015_xlsx.ConvertSTOFC2015ExcelFileCommand,
            }
 
 
-class Add(BaseCommand):
+class Convert(BaseCommand):
     def __init__(self, args):
         self.__args = args
 
@@ -13,7 +13,6 @@ class Add(BaseCommand):
         if self.__args[0] in TARGETS.keys():
             target = self.__args[0]
             args = self.__args[1:]
+            TARGETS[target](args).do()
         else:
             raise Exception()
-
-        TARGETS[target](args).do()

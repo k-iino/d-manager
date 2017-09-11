@@ -1,18 +1,17 @@
-import sys
 import argparse
 
-from d_manager.book import Book
-from d_manager.command import BaseCMD
-from d_manager.book.loader import STOFC2015r7FoodPickleLoader
-from d_manager.book.loader import ProductFoodPickleLoader
+from d_manager.book import BaseBook
 from d_manager.book.dumper import YAMLDumper
+from d_manager.command import BaseCommand
+from d_manager.io.book_loader import ProductFoodPickleLoader
+from d_manager.io.book_loader import STOFC2015r7FoodPickleLoader
 
 SUB_COMMANDS = {'product_food': 'product_food',
                 'stofc2015r7': 'stofc2015r7',  # 日本食品標準成分表2015年版（七訂）の変換
                 }
 
 
-class ViewPickleAsYamlCMD(BaseCMD):
+class ViewPickleAsYamlCommand(BaseCommand):
     def do(self):
         sub = self.args[0]
 
@@ -29,8 +28,8 @@ class ViewPickleAsYamlCMD(BaseCMD):
             # else:
             #     _input = sys.stdin
             _input = _args.input
-            book = Book(STOFC2015r7FoodPickleLoader(_input),
-                        YAMLDumper())
+            book = BaseBook(STOFC2015r7FoodPickleLoader(_input),
+                            YAMLDumper())
             book.load()
             book.dump()
 
@@ -42,8 +41,8 @@ class ViewPickleAsYamlCMD(BaseCMD):
                                 help="入力ファイル")
             _args = parser.parse_args(args)
             _input = _args.input
-            book = Book(ProductFoodPickleLoader(_input),
-                        YAMLDumper())
+            book = BaseBook(ProductFoodPickleLoader(_input),
+                            YAMLDumper())
             book.load()
             book.dump()
         else:
