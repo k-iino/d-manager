@@ -28,9 +28,8 @@ class ViewProductFoodPickleFileCommand(BaseCommand):
             self.__output_format = self.__args.type
 
     def do(self):
-        food_book = ProductFoodBook()
         pickle_loader = PickleProductFoodBookLoader(self.__source_pickle)
-        pickle_loader.load(food_book)
+        food_book = pickle_loader.load()
 
         if self.__output_format == 'csv':
             writer = CSVBookWriter()

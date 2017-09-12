@@ -20,12 +20,13 @@ class AddProductFoodCommand(BaseCommand):
 
     def do(self):
         pickle_file = self.__args.input
-        book = ProductFoodBook()
 
         # 存在する場合は先に読み込んでおく。
         if os.path.exists(pickle_file):
             pickle_loader = PickleProductFoodBookLoader(pickle_file)
-            pickle_loader.load(book)
+            book = pickle_loader.load()
+        else:
+            book = ProductFoodBook()
 
         # 対話的に読み込む
         interactive_loader = InteractiveProductFoodBookLoader()

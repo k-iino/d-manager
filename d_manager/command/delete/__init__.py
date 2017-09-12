@@ -1,11 +1,11 @@
 from d_manager.command import BaseCommand
-from d_manager.command.delete import stofc2015_xlsx
+from d_manager.command.delete.product_food import DeelteProductFoodCommand
 
-TARGETS = {'stofc2015_excel': stofc2015_xlsx.ConvertSTOFC2015ExcelFileCommand,
+TARGETS = {'product_food': DeelteProductFoodCommand,
            }
 
 
-class Convert(BaseCommand):
+class Delete(BaseCommand):
     def __init__(self, args):
         self.__args = args
 

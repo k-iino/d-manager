@@ -17,6 +17,18 @@ class ProductFoodBook(BaseBook):
         for group_number in FOOD_GROUPS.keys():
             self._max_id_in_group[group_number] = 0
 
+    def get_entries_by_group(self, group_number):
+        """指定したグループに登録してある食品の辞書を返す"""
+        if group_number not in FOOD_GROUPS.keys():
+            raise ValueError('Not found group number. number={}'.format(group_number))
+
+        return self._entries[group_number]
+
+    def get_entry_by_total_id(self, total_id):
+        """総合 ID からエントリを取得する"""
+        group_id, id_in_group = ProductFood.get_other_ids_from_total_id(total_id)
+        return self._entries[group_id][id_in_group]
+
     def append(self, product_food, group_number, id_in_group=None):
         """指定したグループに食品情報を追加する"""
         if not isinstance(product_food, ProductFood):
@@ -41,21 +53,15 @@ class ProductFoodBook(BaseBook):
         product_food.classify(group_number, id_in_group)
 
         self._entries[group_number][id_in_group] = product_food
-        # 採番した ID を返す
-        return id_in_group
-
-    def get_entries_by_group(self, group_number):
-        """指定したグループに登録してある食品の辞書を返す"""
-        if group_number not in FOOD_GROUPS.keys():
-            raise ValueError('Not found group number. number={}'.format(group_number))
-
-        return self._entries[group_number]
+        # 採番した総合 ID を返す
+        return ProductFood.get_total_id(group_number, id_in_group)
         
-    def update(self, group_number, id_in_group, entry):
+    def update(self, total_id, entry):
         """指定したエントリを更新する"""
         if not isinstance(entry, ProductFood):
             raise ValueError('Not support type. type={}'.format(type(entry)))
 
+        group_number, id_in_group = ProductFood.get_other_ids_from_total_id(total_id)
         if id_in_group not in self._entries[group_number]:
             raise ValueError('Not found id in the group. group={}, id_in_group={}'.format(group_number, id_in_group))
 
@@ -64,8 +70,9 @@ class ProductFoodBook(BaseBook):
         # 更新前のエントリを返す
         return orig
 
-    def delete(self, group_number, id_in_group):
+    def delete(self, total_id):
         """指定したエントリを削除する"""
+        group_number, id_in_group = ProductFood.get_other_ids_from_total_id(total_id)
         if id_in_group not in self._entries[group_number]:
             raise ValueError('Not found id in the group. group={}, id_in_group={}'.format(group_number, id_in_group))
 

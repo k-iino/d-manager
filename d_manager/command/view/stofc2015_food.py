@@ -28,9 +28,8 @@ class ViewSTOFC2015PickleFileCommand(BaseCommand):
             self.__output_format = self.__args.type
 
     def do(self):
-        food_book = STOFC2015FoodBook()
         pickle_loader = STOFC2015r7FoodPickleLoader(self.__source_pickle)
-        pickle_loader.load(food_book)
+        food_book = pickle_loader.load()
 
         if self.__output_format == 'csv':
             writer = CSVBookWriter()

@@ -41,7 +41,7 @@ class ProductFoodBookTest(unittest.TestCase):
                                amount='100g')
         food_one.set_nutrients_list(['1kcal', '1g', '2g', '3g', '4g'])
         id1 = book.append(food_one, group_number)
-        self.assertEqual(id1, 1)
+        self.assertEqual(id1, 10001)
         excepted_ids.append(id1)
 
         food_two = ProductFood(maker_name='maker',
@@ -50,12 +50,13 @@ class ProductFoodBookTest(unittest.TestCase):
                                amount='100g')
         food_two.set_nutrients_list(['1kcal', '1g', '2g', '3g', '4g'])
         id2 = book.append(food_two, group_number)
-        self.assertEqual(id2, 2)
+        self.assertEqual(id2, 10002)
         excepted_ids.append(id2)
 
         for id_in_group in book.get_entries_by_group(group_number).keys():
             # グループ内での採番の規則の実装が変わったら意味がなくなる
-            if id_in_group not in excepted_ids:
+            total_id = ProductFood.get_total_id(group_number, id_in_group)
+            if total_id not in excepted_ids:
                 self.fail()
 
     def test_delete(self):
@@ -72,20 +73,20 @@ class ProductFoodBookTest(unittest.TestCase):
                              food_name='delicious food',
                              amount='100g')
             _f.set_nutrients_list(['1kcal', '1g', '2g', '3g', '4g'])
-            _id = book.append(_f, group_number)
-            appended_entries[_id] = _f
+            _total_id = book.append(_f, group_number)
+            appended_entries[_total_id] = _f
 
         # 無作為に削除していく
         random.seed()
         for _ in range(num_of_checking):
             # 作成したリストから無作為に選択して削除する
-            _target_id = random.choice(list(appended_entries.keys()))
-            deleted = book.delete(group_number, _target_id)
+            _target_total_id = random.choice(list(appended_entries.keys()))
+            deleted = book.delete(_target_total_id)
             # 指定の ID として追加したものと、削除されたものが同じインスタンスか
-            self.assertIs(deleted, appended_entries[_target_id])
-            self.assertEqual(deleted.product_name, appended_entries[_target_id].product_name)
+            self.assertIs(deleted, appended_entries[_target_total_id])
+            self.assertEqual(deleted.product_name, appended_entries[_target_total_id].product_name)
             # 削除したものは作成済みの辞書からも削除しておく
-            del appended_entries[_target_id]
+            del appended_entries[_target_total_id]
 
         # 全て削除したのでグループには何も含まれていないはず
         self.assertEqual(0, len(list(book.get_entries_by_group(group_number).keys())))
@@ -104,8 +105,8 @@ class ProductFoodBookTest(unittest.TestCase):
                                food_name='delicious food',
                                amount='100g')
             _new.set_nutrients_list(['1kcal', '1g', '2g', '3g', '4g'])
-            _id = book.append(_new, group_number)
-            appended_entries[_id] = _new
+            _total_id = book.append(_new, group_number)
+            appended_entries[_total_id] = _new
 
         # 無作為に更新していく
         random.seed()
@@ -113,20 +114,20 @@ class ProductFoodBookTest(unittest.TestCase):
         new_product_name_prefix = 'updated_'
         for _ in range(num_of_checking):
             # 作成したリストから無作為に選択して更新する
-            _target_id = random.choice(list(appended_entries.keys()))
+            _target_total_id = random.choice(list(appended_entries.keys()))
             # 更新用データ
-            _old = appended_entries[_target_id]
+            _old = appended_entries[_target_total_id]
             _new = ProductFood(maker_name='some maker',
                                product_name='{}{}'.format(new_product_name_prefix, _old.product_name),
                                food_name='delicious food',
                                amount='100g')
             _new.set_nutrients_list(['1kcal', '1g', '2g', '3g', '4g'])
 
-            _updated = book.update(group_number, _target_id, _new)
+            _updated = book.update(_target_total_id, _new)
             # 指定の ID として追加したものと、削除されたものが同じインスタンスか
             self.assertIs(_old, _updated)
             # 更新したものは作成済みの辞書からも削除しておく
-            del appended_entries[_target_id]
+            del appended_entries[_target_total_id]
 
         # 更新された各エントリの名前を確認
         for _food in book.get_entries_by_group(group_number).values():
