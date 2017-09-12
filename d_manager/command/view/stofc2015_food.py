@@ -2,7 +2,7 @@ import argparse
 
 from d_manager.book.stofc2015_food_book import STOFC2015FoodBook
 from d_manager.command import BaseCommand
-from d_manager.io.book_loader.pickle_book_loader import STOFC2015r7FoodPickleLoader
+from d_manager.io.book_loader.pickle_book_loader import STOFC2015FoodBookPickleLoader
 from d_manager.io.book_writer.csv_book_writer import CSVBookWriter
 
 FORMATS = {'csv': None,
@@ -28,7 +28,7 @@ class ViewSTOFC2015PickleFileCommand(BaseCommand):
             self.__output_format = self.__args.type
 
     def do(self):
-        pickle_loader = STOFC2015r7FoodPickleLoader(self.__source_pickle)
+        pickle_loader = STOFC2015FoodBookPickleLoader(self.__source_pickle)
         food_book = pickle_loader.load()
 
         if self.__output_format == 'csv':

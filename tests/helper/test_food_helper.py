@@ -2,8 +2,8 @@ import unittest
 
 from d_manager.food import ENERGY_KEY, PROTEIN_KEY, LIPID_KEY, CARBOHYDRATE_KEY, SALT_KEY
 from d_manager.food import BaseFood
-from d_manager.helper import Unit
-from d_manager.helper import FoodHelper
+from d_manager.helper.unit_helper import Unit
+from d_manager.helper.food_helper import FoodHelper
 
 
 class FoodHelperTest(unittest.TestCase):

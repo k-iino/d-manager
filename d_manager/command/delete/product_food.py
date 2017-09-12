@@ -4,8 +4,8 @@ import yaml
 
 from d_manager.command.add import BaseCommand
 from d_manager.book.product_food_book import ProductFoodBook
-from d_manager.io.book_loader.interactive_book_loader import Helper as InteractiveHelper
-from d_manager.io.book_loader.pickle_book_loader import PickleProductFoodBookLoader
+from d_manager.io.book_loader.interactive_product_food_book_loader import Helper as InteractiveHelper
+from d_manager.io.book_loader.pickle_book_loader import ProductFoodBookPickleLoader
 from d_manager.io.book_writer.pickle_book_writer import PickleBookWriter
 
 
@@ -28,7 +28,7 @@ class DeelteProductFoodCommand(BaseCommand):
         if not os.path.exists(pickle_file):
             raise ValueError('{} が見つかりません。'.format(pickle_file))
 
-        pickle_loader = PickleProductFoodBookLoader(pickle_file)
+        pickle_loader = ProductFoodBookPickleLoader(pickle_file)
         food_book = pickle_loader.load()
 
         # 確認をする

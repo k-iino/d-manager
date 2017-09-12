@@ -1,4 +1,4 @@
-from d_manager.helper import Unit
+from d_manager.helper.unit_helper import Unit
 
 # 食品表示基準（平成 27 年内閣府令第 10 号）で規定される成分の内で、
 # 基本 5 項目を含む食品項目飲みを管理する。

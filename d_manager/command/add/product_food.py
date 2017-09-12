@@ -4,8 +4,8 @@ import argparse
 from d_manager.command.add import BaseCommand
 
 from d_manager.book.product_food_book import ProductFoodBook
-from d_manager.io.book_loader.pickle_book_loader import PickleProductFoodBookLoader
-from d_manager.io.book_loader.interactive_book_loader import InteractiveProductFoodBookLoader
+from d_manager.io.book_loader.pickle_book_loader import ProductFoodBookPickleLoader
+from d_manager.io.book_loader.interactive_product_food_book_loader import InteractiveProductFoodBookLoader
 from d_manager.io.book_writer.pickle_book_writer import PickleBookWriter
 
 
@@ -23,7 +23,7 @@ class AddProductFoodCommand(BaseCommand):
 
         # 存在する場合は先に読み込んでおく。
         if os.path.exists(pickle_file):
-            pickle_loader = PickleProductFoodBookLoader(pickle_file)
+            pickle_loader = ProductFoodBookPickleLoader(pickle_file)
             book = pickle_loader.load()
         else:
             book = ProductFoodBook()

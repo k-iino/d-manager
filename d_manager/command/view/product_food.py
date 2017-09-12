@@ -2,7 +2,7 @@ import argparse
 
 from d_manager.book.product_food_book import ProductFoodBook
 from d_manager.command import BaseCommand
-from d_manager.io.book_loader.pickle_book_loader import PickleProductFoodBookLoader
+from d_manager.io.book_loader.pickle_book_loader import ProductFoodBookPickleLoader
 from d_manager.io.book_writer.csv_book_writer import CSVBookWriter
 
 FORMATS = {'csv': None,
@@ -28,7 +28,7 @@ class ViewProductFoodPickleFileCommand(BaseCommand):
             self.__output_format = self.__args.type
 
     def do(self):
-        pickle_loader = PickleProductFoodBookLoader(self.__source_pickle)
+        pickle_loader = ProductFoodBookPickleLoader(self.__source_pickle)
         food_book = pickle_loader.load()
 
         if self.__output_format == 'csv':

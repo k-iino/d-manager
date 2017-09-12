@@ -3,7 +3,7 @@ import unittest
 from pint.errors import UndefinedUnitError
 from pint.errors import DimensionalityError
 
-from d_manager.helper import Unit
+from d_manager.helper.unit_helper import Unit
 
 
 class TestUnit(unittest.TestCase):
