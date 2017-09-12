@@ -17,10 +17,13 @@ FOOD_KEY = 'food'
 
 class STOFC2015Food(BaseFood):
     """日本食品標準成分表2015年版の食品"""
-    def __init__(self, group_id, food_id, food_id_in_group, group_list, tag_list, amount):
+    def __init__(self, group_id, food_id_in_group, food_id, group_list, tag_list, amount):
+        if group_id not in FOOD_GROUPS.keys():
+            raise ValueError
+
         self.group_id = group_id
-        self.id = food_id
         self.id_in_group = food_id_in_group
+        self.id = food_id
         self.group_list = group_list
         self.tag_list = tag_list
         # 名前は CSV 出力のことを考えてカンマでは区切らない

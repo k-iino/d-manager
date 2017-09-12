@@ -148,8 +148,8 @@ class ConvertSTOFC2015ExcelFileCommand(BaseCommand):
                     salt = str(presume_value(row[SALT_INDEX].value)) + SALT_UNIT
 
                     # 食品
-                    stofc2015_food = STOFC2015Food(group_id, food_id, food_id_in_group,
-                                                   group_list, tag_list, FOOD_AMOUNT)
+                    stofc2015_food = STOFC2015Food(group_id, food_id_in_group, food_id, group_list, tag_list,
+                                                   FOOD_AMOUNT)
                     stofc2015_food.set_nutrients_list([energy, protein, lipid, carbohydrate, salt])
                     food_book.append(stofc2015_food, group_id, food_id_in_group)
 
