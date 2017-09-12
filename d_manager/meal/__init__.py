@@ -33,21 +33,22 @@ class Meal:
         #     - 食べた量
         # オプション
         #     - メモ
-
-        if isinstance(_datetime, datetime.datetime):
-            self.datetime = _datetime
-        elif not _datetime:
-            # 時刻が登録されていなかった場合は現在の時刻で作成
-            self.datetime = datetime.datetime.now()
-        else:
-            raise ValueError('時刻のデータが不正. {}'.format(_datetime))
-
         self.items = list()
         for item in items:
             if isinstance(item, MealItem):
                 self.items = items
             else:
                 raise ValueError('Item の型が不正。{}'.format(type(item)))
+
+        if not _datetime:
+            # 時刻が登録されていなかった場合は現在の時刻で作成
+            self.datetime = datetime.datetime.now()
+        elif isinstance(_datetime, datetime.datetime):
+            self.datetime = _datetime
+        elif isinstance(_datetime, datetime.date):
+            self.datetime = datetime.datetime(year=_datetime.year, month=_datetime.month, day=_datetime.day)
+        else:
+            raise ValueError('時刻のデータが不正. {}'.format(_datetime))
 
         if memo:
             self.memo = str(memo)

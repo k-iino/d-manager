@@ -70,19 +70,16 @@ class STOFC2015FoodBookTestCase(unittest.TestCase):
             self.assertEqual(created_entries[i], appended)
             i += 1
 
-    def test_get_entries_by_group(self):
-        created_entries_by_group = dict()
-
+    def test_get_food_by_total_id(self):
         book = STOFC2015FoodBook()
-
         group_list = ['group1', 'group2']
         tag_list = ['tag1', 'tag2', 'tag3']
         food_amount = '100g'
 
         # 全てのグループで適当な数のエントリを作成して登録する
+        created_foods_by_total_id = dict()
         for i in FOOD_GROUPS.keys():
             group_id = i
-            created_entries_by_group[i] = dict()
             for j in range(50):
                 food_id_in_group = j
                 food_id = int(i) * 1000 + j
@@ -92,14 +89,43 @@ class STOFC2015FoodBookTestCase(unittest.TestCase):
                                                group_list, tag_list,
                                                food_amount)
                 book.append(stofc2015_food, group_id, food_id_in_group)
-                created_entries_by_group[i][j] = stofc2015_food
+                created_foods_by_total_id[food_id] = stofc2015_food
+
+        # 確認
+        for food_id in created_foods_by_total_id.keys():
+            food = book.get_food_by_total_id(food_id)
+            excepted = created_foods_by_total_id[food_id]
+            self.assertEqual(food, excepted)
+
+
+    def test_get_foods_by_group(self):
+        book = STOFC2015FoodBook()
+        group_list = ['group1', 'group2']
+        tag_list = ['tag1', 'tag2', 'tag3']
+        food_amount = '100g'
+
+        # 全てのグループで適当な数のエントリを作成して登録する
+        created_foods_by_group = dict()
+        for i in FOOD_GROUPS.keys():
+            group_id = i
+            created_foods_by_group[i] = dict()
+            for j in range(50):
+                food_id_in_group = j
+                food_id = int(i) * 1000 + j
+                stofc2015_food = STOFC2015Food(group_id,
+                                               food_id_in_group,
+                                               food_id,
+                                               group_list, tag_list,
+                                               food_amount)
+                book.append(stofc2015_food, group_id, food_id_in_group)
+                created_foods_by_group[i][j] = stofc2015_food
 
         # 確認
         for i in FOOD_GROUPS.keys():
-            group_entries = book.get_entries_by_group(i)
+            group_entries = book.get_foods_by_group(i)
             for j in range(50):
                 appended = group_entries[j]
-                excepted = created_entries_by_group[i][j]
+                excepted = created_foods_by_group[i][j]
                 self.assertEqual(appended, excepted)
 
 

@@ -32,7 +32,7 @@ class DeelteProductFoodCommand(BaseCommand):
         food_book = pickle_loader.load()
 
         # 確認をする
-        target_food = food_book.get_entry_by_total_id(delete_target_id)
+        target_food = food_book.get_food_by_total_id(delete_target_id)
         print('以下の食品を削除します。よろしいですか？')
         print(yaml.dump(target_food.to_dict()))
         if InteractiveHelper.confirm_yes_of_no():

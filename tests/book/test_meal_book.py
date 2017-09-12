@@ -9,7 +9,6 @@ from d_manager.food.product_food import ProductFood
 
 class MealBookTestCase(unittest.TestCase):
     def test_init(self):
-
         # 食事を大量に作成し、ランダムに MealBook に登録する。
         # ランダムに登録しても内部的には同じ日付内で時刻昇順に登録されているかを確認する。
         meals = list()
@@ -37,9 +36,19 @@ class MealBookTestCase(unittest.TestCase):
         i = 0
         for meal in meal_book.get_meal_by_date(date):
             self.assertEqual(meals_by_time[i], meal)
-            #print('{}: {}'.format(meal.datetime, meal.memo))
             i += 1
 
+    def test_append(self):
+        # 日付を指定した場合に登録が出来るか
+        product_food = ProductFood(maker_name='maker',
+                                   product_name='product',
+                                   food_name='food',
+                                   amount='100g')
+        scale = 2.0
+        # 時刻、日付両方のオブジェクトで登録が出来るか
+        meal_1 = Meal([MealItem(product_food, scale)], datetime.datetime.now())
+        meal_2 = Meal([MealItem(product_food, scale)], datetime.date.today())
+        pass
 
 if __name__ == '__main__':
     unittest.main()

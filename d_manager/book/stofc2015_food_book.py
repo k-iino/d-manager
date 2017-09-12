@@ -7,9 +7,11 @@ class STOFC2015FoodBook(BaseBook):
     def __init__(self):
         super(STOFC2015FoodBook, self).__init__()
         # ProductFood 用辞書の初期化
-        # 食品毎に内部 ID で管理している
+        # ID 全体での辞書
+        self._foods_by_total_id = dict()
+        # 食品毎に内部 ID でも管理する
         for group_number in FOOD_GROUPS.keys():
-            self._entries[group_number] = dict()
+            self._foods_by_group[group_number] = dict()
 
     def append(self, entry, group_number, id_in_group):
         """指定したグループにエントリを追加する"""
@@ -19,16 +21,21 @@ class STOFC2015FoodBook(BaseBook):
         if group_number not in FOOD_GROUPS.keys():
             raise ValueError('Not found group number. number={}'.format(group_number))
 
-        self._entries[group_number][id_in_group] = entry
+        self._foods_by_total_id[entry.id] = entry
+        self._foods_by_group[group_number][id_in_group] = entry
 
-    def get_entries_by_group(self, group_number):
+    def get_food_by_total_id(self, total_id):
+        """食品全体の ID で食品を取得する"""
+        return self._foods_by_total_id[total_id]
+
+    def get_foods_by_group(self, group_number):
         """指定したグループに登録してある食品の辞書を返す"""
         if group_number not in FOOD_GROUPS.keys():
             raise ValueError('Not found group number. number={}'.format(group_number))
 
-        return self._entries[group_number]
+        return self._foods_by_group[group_number]
 
     def generator(self):
         for group_num in FOOD_GROUPS.keys():
-            for food in self._entries[group_num].values():
+            for food in self._foods_by_group[group_num].values():
                 yield food

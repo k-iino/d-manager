@@ -3,18 +3,27 @@ import calendar
 
 
 class DateTimeHelper:
-    # 全て0埋めした10進数
-    DATE_FORMAT = '%Y-%m-%d'
-    TIME_FORMAT = '%H:%M:%S'
-    DATETIME_FORMAT = '{} {}'.format(DATE_FORMAT, TIME_FORMAT)
-
     @staticmethod
-    def get_date(dt):
+    def get_date_from_str(strdate):
+        # 以下の区切り文字を認める
+        if '-' in strdate:
+            return datetime.datetime.strptime(strdate, '%Y-%m-%d').date()
+        elif '/' in strdate:
+            return datetime.datetime.strptime(strdate, '%Y/%m/%d').date()
+        elif len(strdate) == 8:  # '20170913' といった形式を予想
+            return datetime.datetime.strptime(strdate, '%Y%m%d').date()
+        else:
+            raise ValueError('認められない日付のフォーマット: {}'.format(strdate))
+
+    @classmethod
+    def get_date(cls, dt):
         # datetime は date の子クラスであるのでこの順でないといけない
         if isinstance(dt, datetime.datetime):
             return dt.date()
         elif isinstance(dt, datetime.date):
             return dt
+        elif isinstance(dt, str):
+            return cls.get_date_from_str(dt)
         else:
             raise ValueError
 

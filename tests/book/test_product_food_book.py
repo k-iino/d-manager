@@ -53,7 +53,7 @@ class ProductFoodBookTest(unittest.TestCase):
         self.assertEqual(id2, 10002)
         excepted_ids.append(id2)
 
-        for id_in_group in book.get_entries_by_group(group_number).keys():
+        for id_in_group in book.get_foods_by_group(group_number).keys():
             # グループ内での採番の規則の実装が変わったら意味がなくなる
             total_id = ProductFood.get_total_id(group_number, id_in_group)
             if total_id not in excepted_ids:
@@ -89,7 +89,7 @@ class ProductFoodBookTest(unittest.TestCase):
             del appended_entries[_target_total_id]
 
         # 全て削除したのでグループには何も含まれていないはず
-        self.assertEqual(0, len(list(book.get_entries_by_group(group_number).keys())))
+        self.assertEqual(0, len(list(book.get_foods_by_group(group_number).keys())))
 
     def test_update(self):
         """更新のテスト"""
@@ -130,7 +130,7 @@ class ProductFoodBookTest(unittest.TestCase):
             del appended_entries[_target_total_id]
 
         # 更新された各エントリの名前を確認
-        for _food in book.get_entries_by_group(group_number).values():
+        for _food in book.get_foods_by_group(group_number).values():
             self.assertTrue(_food.product_name.startswith(new_product_name_prefix))
 
 

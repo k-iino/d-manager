@@ -1,5 +1,3 @@
-import yaml
-
 from d_manager.food import BaseFood
 
 # 出力時のキー
