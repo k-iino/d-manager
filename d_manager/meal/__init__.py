@@ -1,4 +1,4 @@
-from d_manager.helper import Unit
+import datetime
 from d_manager.food import BaseFood
 
 
@@ -23,7 +23,7 @@ class MealItem:
 
 
 class Meal:
-    def __init__(self, items, datetime=None, memo=None):
+    def __init__(self, items, _datetime=None, memo=None):
         # 記録すべき事項
         #   - 時間
         #     - 日付
@@ -34,18 +34,22 @@ class Meal:
         # オプション
         #     - メモ
 
-        # todo
-        self.date = None
-        self.time = None
+        if isinstance(_datetime, datetime.datetime):
+            self.datetime = _datetime
+        elif not _datetime:
+            # 時刻が登録されていなかった場合は現在の時刻で作成
+            self.datetime = datetime.datetime.now()
+        else:
+            raise ValueError('時刻のデータが不正. {}'.format(_datetime))
 
-        self.__items = list()
+        self.items = list()
         for item in items:
             if isinstance(item, MealItem):
-                self.__items = items
+                self.items = items
             else:
                 raise ValueError('Item の型が不正。{}'.format(type(item)))
 
         if memo:
-            self.__memo = str(memo)
+            self.memo = str(memo)
         else:
-            self.__memo = ''
+            self.memo = ''
