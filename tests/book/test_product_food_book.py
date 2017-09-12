@@ -41,7 +41,7 @@ class ProductFoodBookTest(unittest.TestCase):
                                amount='100g')
         food_one.set_nutrients_list(['1kcal', '1g', '2g', '3g', '4g'])
         id1 = book.append(food_one, group_number)
-        self.assertEqual(id1, 10001)
+        self.assertEqual(id1, 1001)
         excepted_ids.append(id1)
 
         food_two = ProductFood(maker_name='maker',
@@ -50,7 +50,7 @@ class ProductFoodBookTest(unittest.TestCase):
                                amount='100g')
         food_two.set_nutrients_list(['1kcal', '1g', '2g', '3g', '4g'])
         id2 = book.append(food_two, group_number)
-        self.assertEqual(id2, 10002)
+        self.assertEqual(id2, 1002)
         excepted_ids.append(id2)
 
         for id_in_group in book.get_foods_by_group(group_number).keys():

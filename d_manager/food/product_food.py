@@ -16,10 +16,10 @@ class ProductFood(BaseFood):
     def get_other_ids_from_total_id(total_id):
         """総合 ID から他の ID を取得する"""
         total_id = str(total_id)
-        if len(total_id) == 5:
+        if len(total_id) == 4:
             id_in_group = total_id[1:]
             group_id = total_id[:1]
-        elif len(total_id) == 6:
+        elif len(total_id) == 5:
             id_in_group = total_id[2:]
             group_id = total_id[:2]
         else:
@@ -30,7 +30,7 @@ class ProductFood(BaseFood):
     @staticmethod
     def get_total_id(group_id, id_in_group):
         """他の ID から総合 ID を作成する"""
-        return int(group_id) * 10000 + int(id_in_group)
+        return int(group_id) * 1000 + int(id_in_group)
 
     def __init__(self, maker_name, product_name, food_name, amount):
         self.group_id = None
