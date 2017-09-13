@@ -3,7 +3,7 @@ import argparse
 from d_manager.book.stofc2015_food_book import STOFC2015FoodBook
 from d_manager.command import BaseCommand
 from d_manager.io.book_loader.pickle_book_loader import STOFC2015FoodBookPickleLoader
-from d_manager.io.book_writer.csv_book_writer import CSVBookWriter
+from d_manager.io.book_writer.csv_book_writer import CSVFoodBookWriter
 
 FORMATS = {'csv': None,
            'yaml': None,
@@ -32,7 +32,7 @@ class ViewSTOFC2015PickleFileCommand(BaseCommand):
         food_book = pickle_loader.load()
 
         if self.__output_format == 'csv':
-            writer = CSVBookWriter()
+            writer = CSVFoodBookWriter()
             writer.write(food_book)
         elif self.__output_format == 'yaml':
             raise NotImplementedError

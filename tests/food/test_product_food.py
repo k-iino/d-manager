@@ -9,7 +9,7 @@ class ProductFoodTest(unittest.TestCase):
                                    product_name='product',
                                    food_name='food',
                                    amount='100g')
-        product_food.set_nutrients_list(['1kcal', '1g', '2g', '3g', '4g'])
+        product_food.nutrients = ['1kcal', '1g', '2g', '3g', '4g']
 
     def test_id(self):
         """ID 生成関係のメソッドテスト"""

@@ -2,7 +2,7 @@ import csv
 import sys
 
 
-class CSVBookWriter:
+class CSVFoodBookWriter:
     def write(self, book):
         csv_writer = csv.writer(sys.stdout, lineterminator='\n')
 
@@ -13,3 +13,7 @@ class CSVBookWriter:
                 is_first = False
 
             csv_writer.writerow(food.to_list())
+
+class CSVMealLogWriter:
+    def writer(self, book):
+        csv_writer = csv.writer(sys.stdout, lineterminator='\n')

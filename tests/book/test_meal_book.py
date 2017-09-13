@@ -1,6 +1,7 @@
 import unittest
 import random
 import datetime
+import math
 
 from d_manager.book.meal_book import MealBook
 from d_manager.meal import MealItem, Meal
@@ -49,6 +50,30 @@ class MealBookTestCase(unittest.TestCase):
         meal_1 = Meal([MealItem(product_food, scale)], datetime.datetime.now())
         meal_2 = Meal([MealItem(product_food, scale)], datetime.date.today())
         pass
+
+    def test_f(self):
+        # 食事を大量に作成し、ランダムな日付に MealBook に登録する。
+        meal_book = MealBook()
+        challenge_time = 50
+        num_of_food = 20
+        for i in range(challenge_time):
+            meal_items = list()
+            for j in range(num_of_food):
+                product_food = ProductFood(maker_name='maker',
+                                           product_name='product {}'.format(j),
+                                           food_name='food {}'.format(j),
+                                           amount='100g')
+                scale = round(random.random()*10, 2)
+                meal_items.append(MealItem(product_food, scale))
+
+            year = random.randrange(2000, 2017)
+            month = random.randrange(1, 13)
+            day = random.randrange(1, 29)
+            date = datetime.date(year, month, day)
+            meal = Meal(meal_items, date, memo='{}'.format(i))
+            meal_book.append(meal)
+
+        meal_book.to_csv()
 
 if __name__ == '__main__':
     unittest.main()

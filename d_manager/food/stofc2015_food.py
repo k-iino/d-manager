@@ -30,10 +30,6 @@ class STOFC2015Food(BaseFood):
         name = ' '.join(tag_list)
         super(STOFC2015Food, self).__init__(name, amount)
 
-    def set_nutrients_list(self, l):
-        """栄養素の情報をリスト形式でセットする。"""
-        super(STOFC2015Food, self).set_nutrients_list(l)
-
     def to_dict(self):
         return {ID_KEY: self.id,
                 CLASSIFICATION_KEY: {GROUP_ID_KEY: self.group_id,

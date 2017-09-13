@@ -12,6 +12,14 @@ FOOD_KEY = 'food'
 
 class ProductFood(BaseFood):
     """食品表示法に準拠した表示事項を備える市販の食品"""
+    def __init__(self, maker_name, product_name, food_name, amount):
+        self.group_id = None
+        self.id_in_group = None
+        self.total_id = None
+        self.product_name = product_name
+        self.maker_name = maker_name
+        super(ProductFood, self).__init__(food_name, amount)
+
     @staticmethod
     def get_other_ids_from_total_id(total_id):
         """総合 ID から他の ID を取得する"""
@@ -32,22 +40,10 @@ class ProductFood(BaseFood):
         """他の ID から総合 ID を作成する"""
         return int(group_id) * 1000 + int(id_in_group)
 
-    def __init__(self, maker_name, product_name, food_name, amount):
-        self.group_id = None
-        self.id_in_group = None
-        self.total_id = None
-        self.product_name = product_name
-        self.maker_name = maker_name
-        super(ProductFood, self).__init__(food_name, amount)
-
     def classify(self, group_id, id_in_group):
         self.group_id = group_id
         self.id_in_group = id_in_group
         self.total_id = self.get_total_id(group_id, id_in_group)
-
-    def set_nutrients_list(self, l):
-        """栄養素の情報をリスト形式でセットする。"""
-        super(ProductFood, self).set_nutrients_list(l)
 
     def to_dict(self):
         return {PRODUCT_KEY: {PRODUCT_NAME_KEY: self.product_name,

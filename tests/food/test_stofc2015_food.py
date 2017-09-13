@@ -17,7 +17,7 @@ class STOFC2015FoodTestCase(unittest.TestCase):
                                        food_id,
                                        group_list, tag_list,
                                        food_amount)
-        stofc2015_food.set_nutrients_list(nutrients)
+        stofc2015_food.nutrients = nutrients
 
         invalid_group_id = 'invalid'
         with self.assertRaises(ValueError):

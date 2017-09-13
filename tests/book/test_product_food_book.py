@@ -15,7 +15,7 @@ class ProductFoodBookTest(unittest.TestCase):
                                    product_name='product',
                                    food_name='food',
                                    amount='100g')
-        product_food.set_nutrients_list(['1kcal', '1g', '2g', '3g', '4g'])
+        product_food.nutrients = ['1kcal', '1g', '2g', '3g', '4g']
         group_number = 1
         book.append(product_food, group_number)
 
@@ -39,7 +39,7 @@ class ProductFoodBookTest(unittest.TestCase):
                                product_name='product',
                                food_name='one',
                                amount='100g')
-        food_one.set_nutrients_list(['1kcal', '1g', '2g', '3g', '4g'])
+        food_one.nutrients = ['1kcal', '1g', '2g', '3g', '4g']
         id1 = book.append(food_one, group_number)
         self.assertEqual(id1, 1001)
         excepted_ids.append(id1)
@@ -48,7 +48,7 @@ class ProductFoodBookTest(unittest.TestCase):
                                product_name='product',
                                food_name='twi',
                                amount='100g')
-        food_two.set_nutrients_list(['1kcal', '1g', '2g', '3g', '4g'])
+        food_two.nutrients = ['1kcal', '1g', '2g', '3g', '4g']
         id2 = book.append(food_two, group_number)
         self.assertEqual(id2, 1002)
         excepted_ids.append(id2)
@@ -72,7 +72,7 @@ class ProductFoodBookTest(unittest.TestCase):
                              product_name='product {}'.format(i),
                              food_name='delicious food',
                              amount='100g')
-            _f.set_nutrients_list(['1kcal', '1g', '2g', '3g', '4g'])
+            _f.nutrients = ['1kcal', '1g', '2g', '3g', '4g']
             _total_id = book.append(_f, group_number)
             appended_entries[_total_id] = _f
 
@@ -104,7 +104,7 @@ class ProductFoodBookTest(unittest.TestCase):
                                product_name='product {}'.format(i),
                                food_name='delicious food',
                                amount='100g')
-            _new.set_nutrients_list(['1kcal', '1g', '2g', '3g', '4g'])
+            _new.nutrients = ['1kcal', '1g', '2g', '3g', '4g']
             _total_id = book.append(_new, group_number)
             appended_entries[_total_id] = _new
 
@@ -121,7 +121,7 @@ class ProductFoodBookTest(unittest.TestCase):
                                product_name='{}{}'.format(new_product_name_prefix, _old.product_name),
                                food_name='delicious food',
                                amount='100g')
-            _new.set_nutrients_list(['1kcal', '1g', '2g', '3g', '4g'])
+            _new.nutrients = ['1kcal', '1g', '2g', '3g', '4g']
 
             _updated = book.update(_target_total_id, _new)
             # 指定の ID として追加したものと、削除されたものが同じインスタンスか

@@ -93,12 +93,12 @@ class InteractiveProductFoodBookLoader:
                                    product_name=product_name,
                                    food_name=food_name,
                                    amount=food_amount)
-        product_food.set_nutrients_list([energy,
-                                         protein,
-                                         lipid,
-                                         carbohydrate,
-                                         salt
-                                         ])
+        product_food.set_nutrients([energy,
+                                    protein,
+                                    lipid,
+                                    carbohydrate,
+                                    salt
+                                    ])
 
         # 登録
         Helper.print_msg('以下をグループ「{}」登録しますが、よろしいですか？'.format(FOOD_GROUPS[group_number]))

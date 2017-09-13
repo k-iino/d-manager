@@ -20,10 +20,10 @@ class BaseFoodTest(unittest.TestCase):
 
         # リストをセットする
         food = BaseFood(valid_name, '100g')
-        food.set_nutrients_list(['1kcal', '1g', '2g', '3g', '4g'])
+        food.nutrients = ['1kcal', '1g', '2g', '3g', '4g']
         # リストから取得する
         values = [valid_name, '100g', '1kcal', '1g', '2g', '3g', '4g']
-        food = BaseFood.from_list(values)
+        food = BaseFood.get_food_by_list(values)
 
     def test_nutrient(self):
         """栄養素の代入確認"""

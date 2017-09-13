@@ -5,7 +5,7 @@ from d_manager.food import BaseFood
 class MealItem:
     def __init__(self, food, scale):
         """
-        食事に登録するアイテム
+        1回の食事に含まれるアイテム
         :param food:
         :param scale: 摂取した食事の標準的な量に対する倍率（物理量ではないので注意）
         """
@@ -23,29 +23,22 @@ class MealItem:
 
 
 class Meal:
+    """一回の食事を表すクラス"""
     def __init__(self, items, _datetime=None, memo=None):
-        # 記録すべき事項
-        #   - 時間
-        #     - 日付
-        #     - 時刻
-        #   - 食事
-        #     - 食品を特定する情報
-        #     - 食べた量
-        # オプション
-        #     - メモ
         self.items = list()
         for item in items:
             if isinstance(item, MealItem):
-                self.items = items
+                self.items.append(item)
             else:
                 raise ValueError('Item の型が不正。{}'.format(type(item)))
 
-        if not _datetime:
+        if _datetime is None:
             # 時刻が登録されていなかった場合は現在の時刻で作成
             self.datetime = datetime.datetime.now()
         elif isinstance(_datetime, datetime.datetime):
             self.datetime = _datetime
         elif isinstance(_datetime, datetime.date):
+            # date オブジェクトなら、時刻情報はないが日付のみでよいとする
             self.datetime = datetime.datetime(year=_datetime.year, month=_datetime.month, day=_datetime.day)
         else:
             raise ValueError('時刻のデータが不正. {}'.format(_datetime))

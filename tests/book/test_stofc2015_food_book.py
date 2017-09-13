@@ -20,7 +20,7 @@ class STOFC2015FoodBookTestCase(unittest.TestCase):
                                        food_id,
                                        group_list, tag_list,
                                        food_amount)
-        stofc2015_food.set_nutrients_list(nutrients)
+        stofc2015_food.nutrients = nutrients
 
         book = STOFC2015FoodBook()
         book.append(stofc2015_food, valid_group_id, food_id_in_group)

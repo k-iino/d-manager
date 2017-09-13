@@ -150,7 +150,7 @@ class ConvertSTOFC2015ExcelFileCommand(BaseCommand):
                     # 食品
                     stofc2015_food = STOFC2015Food(group_id, food_id_in_group, food_id, group_list, tag_list,
                                                    FOOD_AMOUNT)
-                    stofc2015_food.set_nutrients_list([energy, protein, lipid, carbohydrate, salt])
+                    stofc2015_food.set_nutrients([energy, protein, lipid, carbohydrate, salt])
                     food_book.append(stofc2015_food, group_id, food_id_in_group)
 
                     # 統計情報
