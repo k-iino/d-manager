@@ -1,65 +1,72 @@
 import unittest
 
 from d_manager.food import BaseFood
+from d_manager.nutrient.basics import Energy, Protein, Lipid, Carbohydrate, SaltEquivalent
+from d_manager.helper.unit_helper import Unit
 
 
 class BaseFoodTest(unittest.TestCase):
+    valid_food_name = 'food_name'
+    values = (0, 1, 1.1)
+    # 想定される文字フォーマット
+    string_formats = ('{}{}', '{} {}')
+    # 食品の量で認められている単位
+    mass_units = (Unit.microgram, Unit.milligram, Unit.gram, Unit.kilogram)
+    volume_units = (Unit.milliliter, Unit.liter)
+    # 食品の量で認められていない単位
+    invalid_units = (Unit.calorie, Unit.joule)
+
     def test_init(self):
         """コンストラクタの確認"""
-        # Good
-        valid_name = 'food_name'
-        valid_mass_amounts = ['123' + x for x in ('ug', 'mg', 'g', 'kg')]
-        valid_volume_amounts = ['123' + x for x in ('ml', 'l')]
-        for valid_amount in valid_mass_amounts + valid_volume_amounts:
-            BaseFood(valid_name, valid_amount)
+        # 文字列の量から作成
+        for str_format in self.string_formats:
+            for value in self.values:
+                # 認められる単位は重量か体積
+                for valid_unit in self.mass_units + self.volume_units:
+                    BaseFood(self.valid_food_name,
+                             str_format.format(value, valid_unit))
+                for invalid_unit in self.invalid_units:
+                    with self.assertRaises(ValueError):
+                        BaseFood(self.valid_food_name,
+                                 str_format.format(value, invalid_unit))
 
-        invalid_amounts = ['123' + x for x in ('s', 'm', 'J', 'kcal')]
-        for invalid_amount in invalid_amounts:
+        # 数値のみのよる、つまり無次元量による指定は認められていない
+        for value in self.values:
             with self.assertRaises(ValueError):
-                BaseFood(valid_name, invalid_amount)
+                BaseFood(self.valid_food_name, value)
 
-        # リストをセットする
-        food = BaseFood(valid_name, '100g')
-        food.nutrients = ['1kcal', '1g', '2g', '3g', '4g']
-        # リストから取得する
-        values = [valid_name, '100g', '1kcal', '1g', '2g', '3g', '4g']
-        food = BaseFood.get_food_by_list(values)
+        # 既にある単位からの作成
+        for value in self.values:
+            # 認められる単位は重量か体積
+            for valid_unit in self.mass_units + self.volume_units:
+                _q = Unit.get_quantity(value, valid_unit)
+                BaseFood(self.valid_food_name, _q)
+            for invalid_unit in self.invalid_units:
+                _q = Unit.get_quantity(value, invalid_unit)
+                with self.assertRaises(ValueError):
+                    BaseFood(self.valid_food_name, _q)
 
-    def test_nutrient(self):
+    def test_setting_nutrient(self):
         """栄養素の代入確認"""
-        valid_name = 'food_name'
-        valid_food_amount = '100g'
-        food = BaseFood(valid_name, valid_food_amount)
+        food = BaseFood(self.valid_food_name, '100g')
+        energy = Energy(1)  # 数値のみの引数はデフォルトの単位が指定されたものとされる
+        protein = Protein(2)
+        lipid = Lipid(3)
+        carbohydrate = Carbohydrate(4)
+        salt = SaltEquivalent(5)
+        # プロパティ側で自動で栄養素を分類する
+        food.nutrient = energy
+        food.nutrient = protein
+        food.nutrient = lipid
+        food.nutrient = carbohydrate
+        food.nutrient = salt
+        # 確認
+        self.assertEqual(energy, food.energy)
+        self.assertEqual(protein, food.protein)
+        self.assertEqual(lipid, food.lipid)
+        self.assertEqual(carbohydrate, food.carbohydrate)
+        self.assertEqual(salt, food.salt)
 
-        energy_amounts = ['123' + x for x in ('J', 'kcal')]
-        mass_amounts = ['123' + x for x in ('ug', 'mg', 'g', 'kg')]
-        non_energy_amounts = ['123' + x for x in ('s', 'm', 'A', 'ml', 'l', 'g', 'mg', 'kg')]
-        non_mass_amounts = ['123' + x for x in ('s', 'm', 'A', 'ml', 'l', 'J', 'kcal')]
-
-        # Good
-        for energy_amount in energy_amounts:
-            food.energy = energy_amount
-
-        for mass_amount in mass_amounts:
-            food.protein = mass_amount
-            food.lipid = mass_amount
-            food.carbohydrate = mass_amount
-            food.salt = mass_amount
-
-        # Bad
-        for amt in non_energy_amounts:
-            with self.assertRaises(ValueError):
-                food.energy = amt
-
-        for amt in non_mass_amounts:
-            with self.assertRaises(ValueError):
-                food.protein = amt
-            with self.assertRaises(ValueError):
-                food.lipid = amt
-            with self.assertRaises(ValueError):
-                food.carbohydrate = amt
-            with self.assertRaises(ValueError):
-                food.salt = amt
 
 if __name__ == '__main__':
     unittest.main()

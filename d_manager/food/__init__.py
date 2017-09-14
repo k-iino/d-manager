@@ -17,18 +17,20 @@ class BaseFood:
     # SODIUM_KEY = 'sodium'
 
     def __init__(self, name, amount):
-        # 食事に含まれる栄養素がどれくらいの量の食品における含有量かを示す基準となる量（食品単位）
-        # 例えば市販の食品だったら栄養成分表示には食品単位が重量として記録されている。
-        # また、日本食品標準成分表2015年版では食品単位は全て 100g である。
-        # 量で、認められる次元は質量と体積の二つ
-        _q = Unit.unit_registry().parse_expression(amount)
+        self.name = str(name)
 
+        # 食品単位
+        # 食事に含まれる栄養素がどれくらいの量の食品における含有量かを示す基準となる量。
+        # 例えば一般の加工食品だったら「栄養成分表示」に食品単位が重量か体積で示されている
+        _q = Unit.get_quantity(amount)
+
+        # 日本食品標準成分表2015年版では食品単位は全て 100g である。
+        # また、「食品表示基準」によると一般加工食品の食品単位で認められる単位は質量か体積の二つ
         if Unit.is_volume(_q) or Unit.is_mass(_q):
             self.amount = _q
         else:
             raise ValueError('{} の量の次元が不正。 value:{}'.format(name, _q.units))
 
-        self.name = str(name)
         self.__nutrients = dict()
         
     # 栄養素に関するその他事項
