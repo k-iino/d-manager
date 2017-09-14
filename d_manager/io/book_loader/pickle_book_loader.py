@@ -2,7 +2,7 @@ import pickle
 
 from d_manager.book.product_food_book import ProductFoodBook
 from d_manager.book.stofc2015_food_book import STOFC2015FoodBook
-from d_manager.book.meal_book import MealBook
+# from d_manager.book.meal_book import MealBook
 
 
 class BookPickleLoader:
@@ -36,18 +36,17 @@ class STOFC2015FoodBookPickleLoader(BookPickleLoader):
     """Pickle ファイルから日本食品標準成分表2015年版（七訂）の食品を読み込むローダー"""
     def load(self):
         with open(self._pickle_file, mode='rb') as f:
-            old_book = pickle.load(f)
-            if not isinstance(old_book, STOFC2015FoodBook):
-                raise ValueError('不正な値です。 Pickle ファイルに予想とは異なる型のデータが含まれています。')
+            book = pickle.load(f)
+            if isinstance(book, STOFC2015FoodBook):
+                return book
             else:
-                return old_book
-
-
-class MealBookPickleLoader(BookPickleLoader):
-    def load(self):
-        with open(self._pickle_file, mode='rb') as f:
-            old_book = pickle.load(f)
-            if not isinstance(old_book, MealBook):
                 raise ValueError('不正な値です。 Pickle ファイルに予想とは異なる型のデータが含まれています。')
-            else:
-                return old_book
+
+# class MealBookPickleLoader(BookPickleLoader):
+#     def load(self):
+#         with open(self._pickle_file, mode='rb') as f:
+#             old_book = pickle.load(f)
+#             if not isinstance(old_book, MealBook):
+#                 raise ValueError('不正な値です。 Pickle ファイルに予想とは異なる型のデータが含まれています。')
+#             else:
+#                 return old_book

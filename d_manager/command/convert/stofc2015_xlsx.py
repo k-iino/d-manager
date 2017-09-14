@@ -1,27 +1,30 @@
+import time
 import argparse
 import openpyxl
 
 from d_manager.command import BaseCommand
-from d_manager.food import FOOD_GROUPS
+from d_manager.nutrient.basics import Energy, Protein, Lipid, Carbohydrate, SaltEquivalent
 from d_manager.food.stofc2015_food import STOFC2015Food
 from d_manager.book.stofc2015_food_book import STOFC2015FoodBook
+from d_manager.book.stofc2015_food_book import GROUPS
 from d_manager.io.book_writer.pickle_book_writer import PickleBookWriter
 
 # EXCEL ファイル内での各情報が格納されているセルの列番号
 GROUP_ID_INDEX = 0
-ID_INDEX = 1
+FOOD_ID_INDEX = 1
 ID_IN_GROUP_INDEX = 2
-FOOD_NAME_INDEX = 3
+FOOD_DESCRIPTION_INDEX = 3
 ENERGY_INDEX = 5
 PROTEIN_INDEX = 8
 LIPID_INDEX = 10
-CARBO_INDEX = 16
+CARBOHYDRATE_INDEX = 16
 SALT_INDEX = 56
-SODIUM_INDEX = 22
+# SODIUM_INDEX = 22
 
 # 日本食品標準成分表2015年版（七訂）では可食部 100 g当たりの成分表示となってるため、
 # 各成分の単位は 100 gあたりに含まれる比率としている。
 FOOD_AMOUNT = '100g'
+
 # 各成分の単位
 # 単位については、日本食品標準成分表2015年版（七訂）第1章 説明 p.「表 14 数値の表示方法」を参考のこと
 #
@@ -43,21 +46,25 @@ class ConvertSTOFC2015ExcelFileCommand(BaseCommand):
                             required=True,
                             help="変換する Excel ファイル")
         parser.add_argument("-o", "--output", type=str,
-                            required=True,
+                            required=False,
                             help="出力する Pickle ファイル")
         self.__args = parser.parse_args(args)
         self.__source_xlsx = self.__args.input
         self.__output_pickle = self.__args.output
+
+    @staticmethod
+    def __parse_food_value(_v):
+        """食品の値をパースする"""
+        # 以下の値を 0 と見做す
+        _zero = ('Tr', '-', '(0)')
+        if _v in _zero:
+            return 0
+        else:
+            return float(_v)
     
     @staticmethod
-    def __classify(grp, desc):
-        """
-        食品の分類情報と食品名を記述から抽出
-
-        :param grp: 食品群名
-        :param desc: 食品記述
-        :return:
-        """
+    def __get_sub_groups_and_tags(grp, desc):
+        """食品の分類情報と食品名から、サブグループとタグを取得する"""
         # 食品の分類を大きく２つの区分に分けている。
         #   1. 食品群（food_group）
         #   2. 分類情報（product_info）
@@ -103,70 +110,63 @@ class ConvertSTOFC2015ExcelFileCommand(BaseCommand):
 
         return food_group, product_info
 
-    def do(self):
-        def presume_value(_v):
-            # 以下の値を 0 と見做す
-            _zero = ('Tr', '-')
-            # print(_v)
-            if _v in _zero:
-                return 0
-            else:
-                return _v
+    @classmethod
+    def __get_food_from_row(cls, row):
+        """行から食品データを作る"""
+        # 食品群の名称（e.g. 調加工食品類）はグループの値から取得する。
+        # 全ての食品群をまとめた Excel ファイルからインポートする場合は、シートのタイトルから食品群を取得することが出来ないため。
+        group_name = GROUPS[int(row[GROUP_ID_INDEX].value)]
+        food_description = row[FOOD_DESCRIPTION_INDEX].value
+        # 食品の記述に食品群の分類情報が含まれている場合があるのでパースする。
+        sub_groups, tags = cls.__get_sub_groups_and_tags(group_name, food_description)
 
+        food = STOFC2015Food(sub_groups, tags, FOOD_AMOUNT)
+        # 各種栄養素を生成する
+        food.nutrient = Energy(cls.__parse_food_value(row[ENERGY_INDEX].value))
+        food.nutrient = Protein(cls.__parse_food_value(row[PROTEIN_INDEX].value))
+        food.nutrient = Lipid(cls.__parse_food_value(row[LIPID_INDEX].value))
+        food.nutrient = Carbohydrate(cls.__parse_food_value(row[CARBOHYDRATE_INDEX].value))
+        food.nutrient = SaltEquivalent(cls.__parse_food_value(row[SALT_INDEX].value))
+
+        return food
+
+    def do(self):
         # 現在は追記処理を作っていない。
         # 全ての食品群をまとめた Excel ファイルが配布されているので、
         # それをコンバートすれば用が足りるからである。
         food_book = STOFC2015FoodBook()
 
         # 統計情報
-        # 食品群ごとの変換数
-        count_of_process_by_group = dict()
-        for group_number in FOOD_GROUPS.keys():
-            count_of_process_by_group[group_number] = 0
+        start_time = time.time()
+        num_of_process = dict()  # 食品群ごとの変換数
+        for group_id in GROUPS.keys():
+            num_of_process[group_id] = 0
 
-        excel_book = openpyxl.load_workbook(self.__source_xlsx, read_only=True)
-        for sheet in excel_book:
+        # Excel 読み込みとパース
+        sheets = openpyxl.load_workbook(self.__source_xlsx, read_only=True)
+        for sheet in sheets:
             for row in sheet.rows:
                 # 有効な食品情報の含まれる行だけを抽出する
                 if row[0].value is not None and row[0].value.isdigit():
-                    # 食品群（e.g. 調加工食品類）の名称は食品群を表すセル内の値から取得する。
-                    # 全ての食品群をまとめた Excel ファイルをインポートする場合は、シート名などから
-                    # 食品群の文字列を取得することが出来ないため。
-                    group_id = int(row[0].value)
-                    group_name = FOOD_GROUPS[group_id]
-                    food_name = row[FOOD_NAME_INDEX].value
-                    # 食品名に食品群の分類情報が含まれている場合があるので使いやすいようにパースする。
-                    group_list, tag_list = self.__classify(group_name, food_name)
-                    # ID
-                    food_id = int(row[ID_INDEX].value)
-                    food_id_in_group = int(row[ID_IN_GROUP_INDEX].value)
-                    # 各種栄養素
-                    energy = str(presume_value(row[ENERGY_INDEX].value)) + ENERGY_UNIT
-                    protein = str(presume_value(row[PROTEIN_INDEX].value)) + PROTEIN_UNIT
-                    lipid = str(presume_value(row[LIPID_INDEX].value)) + LIPID_UNIT
-                    carbohydrate = str(presume_value(row[CARBO_INDEX].value)) + CARBO_UNIT
-                    salt = str(presume_value(row[SALT_INDEX].value)) + SALT_UNIT
-
-                    # 食品
-                    stofc2015_food = STOFC2015Food(group_id, food_id_in_group, food_id, group_list, tag_list,
-                                                   FOOD_AMOUNT)
-                    stofc2015_food.set_nutrients([energy, protein, lipid, carbohydrate, salt])
-                    food_book.append(stofc2015_food, group_id, food_id_in_group)
+                    food = self.__get_food_from_row(row)
+                    food_id = int(row[FOOD_ID_INDEX].value)
+                    food_book.append(food, food_id)
 
                     # 統計情報
-                    count_of_process_by_group[group_id] += 1
-
-            # 統計情報の表示
-            all_count_of_process = 0
-            for group_id, count in count_of_process_by_group.items():
-                print('食品群 {}: {} 件処理しました。'.format(FOOD_GROUPS[group_id], count))
-                all_count_of_process += count
-            else:
-                print('合計: {} 件処理しました。'.format(all_count_of_process))
+                    group_id = int(row[GROUP_ID_INDEX].value)
+                    num_of_process[group_id] += 1
 
             # 最初のシートのみを読み込む
             # 一括でまとまっている Excel ファイルには「別表」シートが付属しており、これはパースできない。
             break
+
+        # 統計情報の表示
+        all_of_num = 0
+        for group_id, count in num_of_process.items():
+            print('食品群 {}: {} 件処理しました。'.format(GROUPS[group_id], count))
+            all_of_num += count
+        else:
+            print('合計: {} 件処理しました。({} sec)'.format(all_of_num, round(time.time() - start_time, 3)))
 
         # 追記モード（'ab'）でファイルを開いて書き込むと、
         # 追記前のデータが残るため取り出したときに追加したエントリが取り出せないので注意。

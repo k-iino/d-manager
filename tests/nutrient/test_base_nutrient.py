@@ -37,12 +37,12 @@ class MyTestCase(unittest.TestCase):
         for v in self.values:
             for n in self.ndigits:
                 # 単位の指定がない場合、無次元量になっているか
-                bn = BaseNutrient('some nutrient', v, units=None, ndigits=n)
+                bn = BaseNutrient(v, units=None, ndigits=n)
                 _assert_base_nutrient(bn, Unit.dimensionless, v, n)
 
                 # 単位の指定がある
                 for unit in self.mass_units + self.volume_units + self.energy_units:
-                    bn = BaseNutrient('some nutrient', v, units=unit, ndigits=n)
+                    bn = BaseNutrient(v, units=unit, ndigits=n)
                     _assert_base_nutrient(bn, unit, v, n)
 
         # 文字列として量を渡す場合
@@ -53,56 +53,56 @@ class MyTestCase(unittest.TestCase):
                 for n in self.ndigits:
                     # 単位の指定がない場合、無次元量になっているか
                     input_str = str_format.format(v, Unit.dimensionless)
-                    bn = BaseNutrient('some nutrient', input_str, ndigits=n)
+                    bn = BaseNutrient(input_str, ndigits=n)
                     _assert_base_nutrient(bn, Unit.dimensionless, v, n)
                     # 単位の指定がある場合、ただし同じ無次元
-                    bn = BaseNutrient('some nutrient', input_str, units=Unit.dimensionless, ndigits=n)
+                    bn = BaseNutrient(input_str, units=Unit.dimensionless, ndigits=n)
                     _assert_base_nutrient(bn, Unit.dimensionless, v, n)
                     # 無次元を他の次元には変換出来ない
                     with self.assertRaises(DimensionalityError):
-                        BaseNutrient('some nutrient', input_str, units=Unit.joule, ndigits=n)
+                        BaseNutrient(input_str, units=Unit.joule, ndigits=n)
 
                     # 単位の指定がある場合
                     # 入力文字列に含まれる単位と、指定の単位が異なる場合、単位変換がされているかも確認する
                     for unit in self.mass_units + self.volume_units + self.energy_units:
                         input_str = str_format.format(v, unit)
                         # 単位の指定がない場合、文字列内から正しく単位を取得できているか
-                        bn = BaseNutrient('some nutrient', input_str, units=None, ndigits=n)
+                        bn = BaseNutrient(input_str, units=None, ndigits=n)
                         _assert_base_nutrient(bn, unit, v, n)
                         # 単位の指定がある場合、正しく単位を変換できているか
                         if unit in self.mass_units:
                             # mass -> mass
                             for dst_unit in self.mass_units:
-                                bn = BaseNutrient('some nutrient', input_str, units=dst_unit, ndigits=n)
+                                bn = BaseNutrient(input_str, units=dst_unit, ndigits=n)
                                 # 単位変換が行われたので、magnitude も変化している
                                 scaled_magnitude = self.ratio_of_units(unit, dst_unit) * v
                                 _assert_base_nutrient(bn, dst_unit, scaled_magnitude, n)
                             # mass -> other
                             for other_unit in self.energy_units + self.volume_units:
                                 with self.assertRaises(DimensionalityError):
-                                    BaseNutrient('some nutrient', input_str, units=other_unit, ndigits=n)
+                                    BaseNutrient(input_str, units=other_unit, ndigits=n)
                         elif unit in self.volume_units:
                             # volume -> volume
                             for dst_unit in self.volume_units:
-                                bn = BaseNutrient('some nutrient', input_str, units=dst_unit, ndigits=n)
+                                bn = BaseNutrient(input_str, units=dst_unit, ndigits=n)
                                 # 単位変換が行われたので、magnitude も変化している
                                 scaled_magnitude = self.ratio_of_units(unit, dst_unit) * v
                                 _assert_base_nutrient(bn, dst_unit, scaled_magnitude, n)
                             # volume -> other
                             for other_unit in self.energy_units + self.mass_units:
                                 with self.assertRaises(DimensionalityError):
-                                    BaseNutrient('some nutrient', input_str, units=other_unit, ndigits=n)
+                                    BaseNutrient(input_str, units=other_unit, ndigits=n)
                         elif unit in self.energy_units:
                             # energy -> energy
                             for dst_unit in self.energy_units:
-                                bn = BaseNutrient('some nutrient', input_str, units=dst_unit, ndigits=n)
+                                bn = BaseNutrient(input_str, units=dst_unit, ndigits=n)
                                 # 単位変換が行われたので、magnitude も変化している
                                 scaled_magnitude = self.ratio_of_units(unit, dst_unit) * v
                                 _assert_base_nutrient(bn, dst_unit, scaled_magnitude, n)
                             # energy -> other
                             for other_unit in self.volume_units + self.mass_units:
                                 with self.assertRaises(DimensionalityError):
-                                    BaseNutrient('some nutrient', input_str, units=other_unit, ndigits=n)
+                                    BaseNutrient(input_str, units=other_unit, ndigits=n)
 
     def test_add(self):
         """加算が正しく出来るか"""
@@ -111,9 +111,9 @@ class MyTestCase(unittest.TestCase):
             for left_operand in left_operands:
                 for right_operand in right_operands:
                     for n in self.ndigits:
-                        # print('{} + {}'.format(left_operand, right_operan))
-                        left_bn = BaseNutrient('some nutrient', left_operand, ndigits=n)
-                        right_bn = BaseNutrient('some nutrient', right_operand, ndigits=n)
+                        # print('{} + {}'.format(left_operand, right_operand))
+                        left_bn = BaseNutrient(left_operand, ndigits=n)
+                        right_bn = BaseNutrient(right_operand, ndigits=n)
                         actual_sum = left_bn + right_bn
                         # 計算後は左側の被演算子の単位になっているか
                         self.assertEqual(actual_sum.units, left_bn.units)
@@ -126,13 +126,13 @@ class MyTestCase(unittest.TestCase):
                         self.assertEqual(excepted_sum_magnitude, actual_sum.magnitude)
                 # 異なる単位間での加算はエラー
                 for invalid_operand in invalid_operands:
-                    left_bn = BaseNutrient('some nutrient', left_operand)
-                    right_bn = BaseNutrient('some nutrient', invalid_operand)
+                    left_bn = BaseNutrient(left_operand)
+                    right_bn = BaseNutrient(invalid_operand)
                     with self.assertRaises(DimensionalityError):
                         left_bn + right_bn
                 # 直接数値を加算するのはエラー
                 for value in self.values:
-                    left_bn = BaseNutrient('some nutrient', left_operand)
+                    left_bn = BaseNutrient(left_operand)
                     with self.assertRaises(NotImplementedError):
                         left_bn + value
 
@@ -155,21 +155,21 @@ class MyTestCase(unittest.TestCase):
             # 栄養素同士の乗算は栄養素と数値との掛け算しか認めていない
             for left_operand in left_operands:
                 for right_operand in right_operands:
-                    left_bn = BaseNutrient('some nutrient', left_operand)
-                    right_bn = BaseNutrient('some nutrient', right_operand)
+                    left_bn = BaseNutrient(left_operand)
+                    right_bn = BaseNutrient(right_operand)
                     # 同じ次元の量を持つ栄養素同士の乗算はエラー
                     with self.assertRaises(NotImplementedError):
                         left_bn * right_bn
                 # 異なる単位での乗算はエラー
                 for invalid_operand in invalid_operands:
-                    left_bn = BaseNutrient('some nutrient', left_operand)
-                    right_bn = BaseNutrient('some nutrient', invalid_operand)
+                    left_bn = BaseNutrient(left_operand)
+                    right_bn = BaseNutrient(invalid_operand)
                     with self.assertRaises(NotImplementedError):
                         left_bn * right_bn
                 # 直接数値を乗算することのみが認められている
                 for value in self.values:
                     for n in self.ndigits:
-                        left_bn = BaseNutrient('some nutrient', left_operand, ndigits=n)
+                        left_bn = BaseNutrient(left_operand, ndigits=n)
                         answer = left_bn * value
                         if not isinstance(answer, BaseNutrient):
                             raise ValueError
