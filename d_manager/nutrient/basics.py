@@ -8,60 +8,67 @@ from d_manager.nutrient import BaseNutrient
 ここでの基本 5 項目は熱量、たんぱく質、脂質、炭水化物、食塩相当量を指す。
 
 表示の際に用いる各栄養素の単位と小数部の有効桁（小数第N位）は
-「食品表示基準」と「日本食品標準成分表2015年版」での有効桁を見比べ、精度の低いものを採用した。
+「食品表示基準」と「日本食品標準成分表2015年版」での有効桁を参考にした。
+「食品表示基準」では、最低限表示すべき桁数が定められているが、より下の位を表示することを妨げていない。
+実際の市販食品では小数第1位までを表示するものが多いようだ。
 """
 
 
 class Energy(BaseNutrient):
     """熱量"""
+    name = '熱量'
     # 表示に用いる単位
     __units = Unit.kilocalorie
     # 小数部の有効桁（小数第N位）
-    __significant_figure = 0
+    __significant_figure = 1
 
     def __init__(self, i):
-        super(Energy, self).__init__('熱量', i, self.__units)
+        super(Energy, self).__init__(i, self.__units, self.__significant_figure)
 
 
 class Protein(BaseNutrient):
     """たんぱく質"""
+    name = 'たんぱく質'
     # 単位
     __units = Unit.gram
     # 小数部の有効桁（小数第N位）
-    __significant_figure = 0
+    __significant_figure = 1
 
     def __init__(self, i):
-        super(Protein, self).__init__('たんぱく質', i, self.__units)
+        super(Protein, self).__init__(i, self.__units, self.__significant_figure)
 
 
 class Lipid(BaseNutrient):
     """脂質"""
+    name = '脂質'
     # 単位
     __units = Unit.gram
     # 小数部の有効桁（小数第N位）
-    __significant_figure = 0
+    __significant_figure = 1
 
     def __init__(self, i):
-        super(Lipid, self).__init__('脂質', i, self.__units)
+        super(Lipid, self).__init__(i, self.__units, self.__significant_figure)
 
 
 class Carbohydrate(BaseNutrient):
     """炭水化物"""
+    name = '炭水化物'
     # 単位
     __units = Unit.gram
     # 小数部の有効桁（小数第N位）
-    __significant_figure = 0
+    __significant_figure = 1
 
     def __init__(self, i):
-        super(Carbohydrate, self).__init__('炭水化物', i, self.__units)
+        super(Carbohydrate, self).__init__(i, self.__units, self.__significant_figure)
 
 
 class SaltEquivalent(BaseNutrient):
     """食塩相当量"""
+    name = '食塩相当量'
     # 単位
     __units = Unit.gram
     # 小数部の有効桁（小数第N位）
-    __significant_figure = 0
+    __significant_figure = 3
 
     def __init__(self, i):
-        super(SaltEquivalent, self).__init__('食塩相当量', i, self.__units)
+        super(SaltEquivalent, self).__init__(i, self.__units, self.__significant_figure)
