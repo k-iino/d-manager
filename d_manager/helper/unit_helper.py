@@ -1,57 +1,51 @@
 from pint import UnitRegistry
 
 
-class Unit:
-    """単位を操作するクラス"""
+class Unit:    
+    """単位を表現するクラス"""
+    
     # 実際の物理量の操作は別のパッケージに委任している。
-
     # 異なる UnitRegistry 間だと量同士の演算が出来ないので
-    # 全体でひとつの UnitRegistry を利用する。
-    __reg = UnitRegistry()
+    # 各種演算がされる量を持つクラスは一つの UnitRegistry を利用する必要がある。
+    __ureg = UnitRegistry()
 
-    # 次元を示す文字列
-    DIM_MASS = '[mass]'
-    DIM_VOLUME = '[volume]'
-    DIM_ENERGY = '[energy]'
+    # 単位の次元
+    __energy_dim = __ureg.get_dimensionality('[energy]')
+    __mass_dim = __ureg.get_dimensionality('[mass]')
+    __volume_dim = __ureg.get_dimensionality('[volume]')
 
-    @classmethod
-    def get_amount(cls, a):
-        if isinstance(a, int) or isinstance(a, float):
-            return cls.__reg.Quantity(a)
-        elif isinstance(a, str):
-            return cls.parse_expression(a)
-        elif isinstance(a, cls.__reg.Quantity):
-            return a
-        else:
-            raise ValueError('不適切な値。 type={}, value={}'.format(type(a), a))
-
-    @classmethod
-    def parse_expression(cls, e):
-        return cls.__reg.parse_expression(e)
-
-    @staticmethod
-    def to_str(amount):
-        return '{:~P}'.format(amount)
+    # unitless, dimensionless
+    dimensionless = __ureg.dimensionless
+    # energy
+    calorie = __ureg.calorie
+    kilocalorie = __ureg.kilocalorie
+    joule = __ureg.joule
+    kilojoule = __ureg.kilojoule
+    # mass
+    kilogram = __ureg.kilogram
+    gram = __ureg.gram
+    milligram = __ureg.milligram
+    microgram = __ureg.microgram
+    nanogram = __ureg.nanogram
+    # volume
+    liter = __ureg.liter
+    milliliter = __ureg.milliliter
 
     @classmethod
-    def check_dimensionality(cls, dim, amount):
-        """単位の次元を確認する。"""
-        amount = cls.get_amount(amount)
-        a = cls.__reg.get_dimensionality(amount)
-        m = cls.__reg.get_dimensionality(dim)
-        return a == m
+    def unit_registry(cls):
+        return cls.__ureg
 
     @classmethod
-    def is_mass(cls, amount):
+    def is_mass(cls, q):
         """量の次元は質量か"""
-        return cls.check_dimensionality(cls.DIM_MASS, amount)
+        return cls.__ureg.get_dimensionality(q) == cls.__mass_dim
 
     @classmethod
-    def is_volume(cls, amount):
+    def is_volume(cls, q):
         """量の次元は体積か"""
-        return cls.check_dimensionality(cls.DIM_VOLUME, amount)
+        return cls.__ureg.get_dimensionality(q) == cls.__volume_dim
 
     @classmethod
-    def is_energy(cls, amount):
+    def is_energy(cls, q):
         """量の次元はエネルギーか"""
-        return cls.check_dimensionality(cls.DIM_ENERGY, amount)
+        return cls.__ureg.get_dimensionality(q) == cls.__energy_dim
