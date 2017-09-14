@@ -1,11 +1,11 @@
-from d_manager.book.stofc2015_food_book import STOFC2015FoodBook
-from d_manager.food.stofc2015_food import STOFC2015Food
+from d_manager.food.product_food import ProductFood
+from d_manager.book.product_food_book import ProductFoodBook
 
 
-class STOFC2015FoodBookCSVWriter:
+class ProductFoodBookCSVWriter:
     @staticmethod
     def write(book):
-        if not isinstance(book, STOFC2015FoodBook):
+        if not isinstance(book, ProductFoodBook):
             raise ValueError()
 
         rows = list()
@@ -13,8 +13,9 @@ class STOFC2015FoodBookCSVWriter:
         # LABEL
         rows.append(['group_id',
                      'food_id',
-                     'groups',
-                     'tags',
+                     'maker',
+                     'product_name',
+                     'name',
                      'amount',
                      'energy',
                      'protein',
@@ -23,14 +24,15 @@ class STOFC2015FoodBookCSVWriter:
                      'salt_equivalent',
                      ])
 
-        for group_id, id_in_group, food in book.generator():
-            if not isinstance(food, STOFC2015Food):
+        for group_id, food_id, food in book.generator():
+            if not isinstance(food, ProductFood):
                 raise ValueError()
 
             _row = [group_id,
-                    group_id * 1000 + id_in_group,
-                    ' '.join(food.groups),
-                    ' '.join(food.tags),
+                    food_id,
+                    food.maker_name,
+                    food.product_name,
+                    food.name,
                     food.amount,
                     food.energy,
                     food.protein,

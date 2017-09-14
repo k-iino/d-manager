@@ -78,3 +78,22 @@ class BaseNutrient:
     def significant_figure(self):
         """significant_figure"""
         return self.__significant_figure
+
+
+class HasDefaultSignificantFigure:
+    """デフォルトの有効桁を所持することを表す"""
+    # 小数部の有効桁（小数第N位）
+    _default_significant_figure = 0
+
+    @classmethod
+    def default_significant_figure(cls):
+        return cls._default_significant_figure
+
+
+class HasDefaultUnit:
+    """デフォルトの単位を所持することを表す"""
+    _default_units = Unit.dimensionless
+
+    @classmethod
+    def default_units(cls):
+        return cls._default_units

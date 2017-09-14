@@ -3,7 +3,6 @@ import unittest
 from d_manager.food.stofc2015_food import STOFC2015Food
 from d_manager.book.stofc2015_food_book import STOFC2015FoodBook
 from d_manager.book.stofc2015_food_book import GROUPS
-from d_manager.food.product_food import ProductFood
 
 
 class STOFC2015FoodBookTestCase(unittest.TestCase):

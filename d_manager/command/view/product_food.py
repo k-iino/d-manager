@@ -2,10 +2,10 @@ import argparse
 
 from d_manager.command import BaseCommand
 from d_manager.io.book_loader.pickle_book_loader import ProductFoodBookPickleLoader
-from d_manager.io.book_writer.csv_book_writer import CSVFoodBookWriter
+from d_manager.io.book_writer.product_food_book_csv_writer import ProductFoodBookCSVWriter
 
 FORMATS = {'csv': None,
-           'yaml': None,
+           # "'yaml': None,
            }
 
 
@@ -28,10 +28,10 @@ class ViewProductFoodPickleFileCommand(BaseCommand):
 
     def do(self):
         pickle_loader = ProductFoodBookPickleLoader(self.__source_pickle)
-        food_book = pickle_loader.load()
+        book = pickle_loader.load()
 
         if self.__output_format == 'csv':
-            writer = CSVFoodBookWriter()
-            writer.write(food_book)
+            writer = ProductFoodBookCSVWriter()
+            writer.write(book)
         elif self.__output_format == 'yaml':
             raise NotImplementedError

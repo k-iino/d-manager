@@ -1,5 +1,7 @@
 from d_manager.helper.unit_helper import Unit
 from d_manager.nutrient import BaseNutrient
+from d_manager.nutrient import HasDefaultSignificantFigure
+from d_manager.nutrient import HasDefaultUnit
 
 """
 基本となる栄養素
@@ -14,61 +16,66 @@ from d_manager.nutrient import BaseNutrient
 """
 
 
-class Energy(BaseNutrient):
+class Energy(BaseNutrient, HasDefaultSignificantFigure, HasDefaultUnit):
     """熱量"""
     name = '熱量'
     # 表示に用いる単位
-    __units = Unit.kilocalorie
+    _default_units = Unit.kilocalorie
     # 小数部の有効桁（小数第N位）
-    __significant_figure = 1
+    _default_significant_figure = 1
 
     def __init__(self, i):
-        super(Energy, self).__init__(i, self.__units, self.__significant_figure)
+        super(Energy, self).__init__(i, self._default_units,
+                                     self._default_significant_figure)
 
 
-class Protein(BaseNutrient):
+class Protein(BaseNutrient, HasDefaultSignificantFigure, HasDefaultUnit):
     """たんぱく質"""
     name = 'たんぱく質'
     # 単位
-    __units = Unit.gram
+    _default_units = Unit.gram
     # 小数部の有効桁（小数第N位）
-    __significant_figure = 1
+    _default_significant_figure = 1
 
     def __init__(self, i):
-        super(Protein, self).__init__(i, self.__units, self.__significant_figure)
+        super(Protein, self).__init__(i, self._default_units,
+                                      self._default_significant_figure)
 
 
-class Lipid(BaseNutrient):
+class Lipid(BaseNutrient, HasDefaultSignificantFigure, HasDefaultUnit):
     """脂質"""
     name = '脂質'
     # 単位
-    __units = Unit.gram
+    _default_units = Unit.gram
     # 小数部の有効桁（小数第N位）
-    __significant_figure = 1
+    _default_significant_figure = 1
 
     def __init__(self, i):
-        super(Lipid, self).__init__(i, self.__units, self.__significant_figure)
+        super(Lipid, self).__init__(i, self._default_units,
+                                    self._default_significant_figure)
 
 
-class Carbohydrate(BaseNutrient):
+class Carbohydrate(BaseNutrient, HasDefaultSignificantFigure, HasDefaultUnit):
     """炭水化物"""
     name = '炭水化物'
     # 単位
-    __units = Unit.gram
+    _default_units = Unit.gram
     # 小数部の有効桁（小数第N位）
-    __significant_figure = 1
+    _default_significant_figure = 1
 
     def __init__(self, i):
-        super(Carbohydrate, self).__init__(i, self.__units, self.__significant_figure)
+        super(Carbohydrate, self).__init__(i, self._default_units,
+                                           self._default_significant_figure)
 
 
-class SaltEquivalent(BaseNutrient):
+class SaltEquivalent(BaseNutrient, HasDefaultSignificantFigure, HasDefaultUnit):
     """食塩相当量"""
     name = '食塩相当量'
     # 単位
-    __units = Unit.gram
+    _default_units = Unit.gram
     # 小数部の有効桁（小数第N位）
-    __significant_figure = 3
+    _default_significant_figure = 3
 
     def __init__(self, i):
-        super(SaltEquivalent, self).__init__(i, self.__units, self.__significant_figure)
+        super(SaltEquivalent, self).__init__(i, self._default_units,
+                                             self._default_significant_figure)

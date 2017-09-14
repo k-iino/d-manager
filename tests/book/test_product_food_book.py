@@ -1,137 +1,172 @@
 import random
 import unittest
 
-from d_manager.food import BaseFood
 from d_manager.food.product_food import ProductFood
+from d_manager.book.product_food_book import GROUPS
 from d_manager.book.product_food_book import ProductFoodBook
+from d_manager.nutrient.basics import Energy, Protein, Lipid, Carbohydrate, SaltEquivalent
 
 
 class ProductFoodBookTest(unittest.TestCase):
-    def test_init(self):
-        book = ProductFoodBook()
 
-        # Good
-        product_food = ProductFood(maker_name='maker',
-                                   product_name='product',
-                                   food_name='food',
-                                   amount='100g')
-        product_food.nutrients = ['1kcal', '1g', '2g', '3g', '4g']
-        group_number = 1
-        book.append(product_food, group_number)
+    nutrient_classes = (Energy,
+                        Protein,
+                        Lipid,
+                        Carbohydrate,
+                        SaltEquivalent)
 
-        # Bad
-        invalid_entry = BaseFood('some food', '100g')
-        with self.assertRaises(ValueError):
-            book.append(invalid_entry, group_number)
-
-        invalid_group_number = 'foo'
-        with self.assertRaises(ValueError):
-            book.append(product_food, invalid_group_number)
-
-    def test_id_in_group(self):
-        """食品のグループ内での採番が正しくされているかを確認"""
-        book = ProductFoodBook()
-        group_number = 1
-        excepted_ids = list()
-
-        # Good
-        food_one = ProductFood(maker_name='maker',
-                               product_name='product',
-                               food_name='one',
-                               amount='100g')
-        food_one.nutrients = ['1kcal', '1g', '2g', '3g', '4g']
-        id1 = book.append(food_one, group_number)
-        self.assertEqual(id1, 1001)
-        excepted_ids.append(id1)
-
-        food_two = ProductFood(maker_name='maker',
-                               product_name='product',
-                               food_name='twi',
-                               amount='100g')
-        food_two.nutrients = ['1kcal', '1g', '2g', '3g', '4g']
-        id2 = book.append(food_two, group_number)
-        self.assertEqual(id2, 1002)
-        excepted_ids.append(id2)
-
-        for id_in_group in book.get_foods_by_group(group_number).keys():
-            # グループ内での採番の規則の実装が変わったら意味がなくなる
-            total_id = ProductFood.get_total_id(group_number, id_in_group)
-            if total_id not in excepted_ids:
-                self.fail()
-
-    def test_delete(self):
-        """削除のテスト"""
-        book = ProductFoodBook()
-        group_number = 1
-        num_of_checking = 10
-        appended_entries = dict()
-
-        # Book に食品データを入れる
-        for i in range(num_of_checking):
-            _f = ProductFood(maker_name='some maker',
-                             product_name='product {}'.format(i),
-                             food_name='delicious food',
-                             amount='100g')
-            _f.nutrients = ['1kcal', '1g', '2g', '3g', '4g']
-            _total_id = book.append(_f, group_number)
-            appended_entries[_total_id] = _f
-
-        # 無作為に削除していく
+    @classmethod
+    def __get_randome_amount_nutrients(cls):
         random.seed()
-        for _ in range(num_of_checking):
-            # 作成したリストから無作為に選択して削除する
-            _target_total_id = random.choice(list(appended_entries.keys()))
-            deleted = book.delete(_target_total_id)
-            # 指定の ID として追加したものと、削除されたものが同じインスタンスか
-            self.assertIs(deleted, appended_entries[_target_total_id])
-            self.assertEqual(deleted.product_name, appended_entries[_target_total_id].product_name)
-            # 削除したものは作成済みの辞書からも削除しておく
-            del appended_entries[_target_total_id]
+        nutrients = list()
+        for nut_cls in cls.nutrient_classes:
+            value = random.random() * 500
+            nutrients.append(nut_cls(value))
+        else:
+            return nutrients
 
-        # 全て削除したのでグループには何も含まれていないはず
-        self.assertEqual(0, len(list(book.get_foods_by_group(group_number).keys())))
+    def test_append_and_get(self):
+        """食品が正しく登録出来るか"""
+        # 確認用に食品を保存しておく辞書
+        created_foods = dict()
+        # 一つのグループに登録する食品の数
+        num_of_foods = 50
+
+        book = ProductFoodBook()
+
+        # append のテスト
+        # 全てのグループに指定の数だけ食品を作成し登録する。
+        for group_id in GROUPS:
+            for i in range(1, num_of_foods + 1):
+                maker = '製造者 {}'.format(group_id, i)
+                product = '商品名・product name {} {}'.format(group_id, i)
+                food_name = '名称/food name {} {}'.format(group_id, i)
+                food = ProductFood(maker, product, food_name, '100g')
+                food.nutrients = self.__get_randome_amount_nutrients()
+
+                # 市販の食品の場合は登録するまでグループ内の ID が確定せず、
+                # 登録時に統合 ID （グループ ID とグループ内の ID から一意に決まる ID）が返ってくる
+                # 作成時に予測した統合 ID と一致するかも確認する。
+                excepted_total_id = group_id * 1000 + i
+                total_id = book.append(group_id, food)
+                self.assertEqual(excepted_total_id, total_id)
+
+                created_foods[total_id] = food
+
+        # get_by_total_id のテスト
+        for total_id in created_foods.keys():
+            excpted = created_foods[total_id]
+            actual = book.get_by_total_id(total_id)
+            self.assertEqual(excpted, actual)
+
+        # view のテスト用
+        import pickle
+        with open('../bin/pickle/test_product_food_book.pickle', mode='wb') as f:
+            pickle.dump(book, f)
 
     def test_update(self):
-        """更新のテスト"""
+        """登録したエントリの更新についてのテスト"""
+        # 確認用に食品を保存しておく辞書
+        created_foods = dict()
+        # 一つのグループに登録する食品の数
+        num_of_foods = 50
+        # 一つのグループごとに更新する食品の数
+        num_of_update = 20
+
         book = ProductFoodBook()
-        group_number = 1
-        num_of_checking = 10
-        appended_entries = dict()
 
-        # Book に食品データを入れる
-        for i in range(num_of_checking):
-            _new = ProductFood(maker_name='some maker',
-                               product_name='product {}'.format(i),
-                               food_name='delicious food',
-                               amount='100g')
-            _new.nutrients = ['1kcal', '1g', '2g', '3g', '4g']
-            _total_id = book.append(_new, group_number)
-            appended_entries[_total_id] = _new
+        # append
+        # 全てのグループに指定の数だけ食品を作成し登録する。
+        for group_id in GROUPS:
+            for i in range(1, num_of_foods + 1):
+                maker = 'maker'
+                product = 'product {}'.format(i)
+                food_name = 'food name {}'.format(i)
+                food = ProductFood(maker, product, food_name, '100g')
+                food.nutrients = self.__get_randome_amount_nutrients()
+                # 登録
+                total_id = book.append(group_id, food)
+                created_foods[total_id] = food
 
-        # 無作為に更新していく
-        random.seed()
-        # 更新した食品の商品名に付ける接頭辞
-        new_product_name_prefix = 'updated_'
-        for _ in range(num_of_checking):
-            # 作成したリストから無作為に選択して更新する
-            _target_total_id = random.choice(list(appended_entries.keys()))
-            # 更新用データ
-            _old = appended_entries[_target_total_id]
-            _new = ProductFood(maker_name='some maker',
-                               product_name='{}{}'.format(new_product_name_prefix, _old.product_name),
-                               food_name='delicious food',
-                               amount='100g')
-            _new.nutrients = ['1kcal', '1g', '2g', '3g', '4g']
+        # update
+        # ランダムに更新して、更新出来たかを確認
+        for group_id in GROUPS:
+            # 一度選んだ ID は選ばない
+            updated_total_id = list()
+            while len(updated_total_id) <= num_of_update:
+                # 総合 ID をランダムで生成して、そのエントリをアップデートして確認する
+                total_id = group_id * 1000 + random.randrange(1, num_of_foods + 1)
+                if total_id in updated_total_id:
+                    continue
 
-            _updated = book.update(_target_total_id, _new)
-            # 指定の ID として追加したものと、削除されたものが同じインスタンスか
-            self.assertIs(_old, _updated)
-            # 更新したものは作成済みの辞書からも削除しておく
-            del appended_entries[_target_total_id]
+                # 更新する新しい食品
+                maker = 'updated maker {}'.format(i)
+                product = 'updated {}'.format(i)
+                food_name = 'updated food {}'.format(i)
+                new_food = ProductFood(maker, product, food_name, '100g')
+                new_food.nutrients = self.__get_randome_amount_nutrients()
+                # 更新
+                old = book.update(total_id, new_food)
+                # 返ってきたものが古いものと一致するか確認する
+                excepted = created_foods[total_id]
+                self.assertEqual(excepted, old)
+                # self.assertEqual(old.name, excepted.name)
+                # self.assertEqual(old.product_name, excepted.product_name)
+                # self.assertEqual(old.energy, excepted.energy)
+                # self.assertEqual(old.protein, excepted.protein)
+                # 以後、Book から取得出来るものは更新した食品か確認する
+                self.assertEqual(book.get_by_total_id(total_id), new_food)
+                # 更新した id は記録しておく
+                updated_total_id.append(total_id)
 
-        # 更新された各エントリの名前を確認
-        for _food in book.get_foods_by_group(group_number).values():
-            self.assertTrue(_food.product_name.startswith(new_product_name_prefix))
+    def test_delete(self):
+        """登録したエントリの削除についてのテスト"""
+        # 確認用に食品を保存しておく辞書
+        created_foods = dict()
+        # 一つのグループに登録する食品の数
+        num_of_foods = 50
+        # 一つのグループごとに削除する食品の数
+        num_of_delete = 20
+
+        book = ProductFoodBook()
+
+        # append
+        # 全てのグループに指定の数だけ食品を作成し登録する。
+        for group_id in GROUPS:
+            for i in range(1, num_of_foods + 1):
+                maker = 'maker'
+                product = 'product {}'.format(i)
+                food_name = 'food name {}'.format(i)
+                food = ProductFood(maker, product, food_name, '100g')
+                food.nutrients = self.__get_randome_amount_nutrients()
+                total_id = book.append(group_id, food)
+                created_foods[total_id] = food
+
+        # delete
+        # ランダムに削除して、削除出来たかを確認
+        for group_id in GROUPS:
+            # 一度選んだ ID は選ばない
+            delete_total_id = list()
+            while len(delete_total_id) <= num_of_delete:
+                # 総合 ID をランダムで生成して、そのエントリをアップデートして確認する
+                total_id = group_id * 1000 + random.randrange(1, num_of_foods + 1)
+                if total_id in delete_total_id:
+                    continue
+
+                # 削除
+                old = book.delete(total_id)
+                # 返ってきたものが古いものと一致するか確認する
+                excepted = created_foods[total_id]
+                self.assertEqual(excepted, old)
+                # self.assertEqual(old.name, excepted.name)
+                # self.assertEqual(old.product_name, excepted.product_name)
+                # self.assertEqual(old.energy, excepted.energy)
+                # self.assertEqual(old.protein, excepted.protein)
+                # 以後､取得出来ないことを確認する
+                with self.assertRaises(KeyError):
+                    book.get_by_total_id(total_id)
+                # 更新した id は記録しておく
+                delete_total_id.append(total_id)
 
 
 if __name__ == '__main__':
