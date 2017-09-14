@@ -34,10 +34,10 @@ class STOFC2015FoodBook(BaseBook):
         # ID 全体での辞書
         self._foods_by_total_id = dict()
         # 食品毎に内部 ID でも管理する
-        for group_number in GROUPS.keys():
-            self._foods_by_group[group_number] = dict()
+        for group_id in GROUPS.keys():
+            self._foods_by_group[group_id] = dict()
 
-    def append(self, food, food_id):
+    def append(self, food_id, food):
         """指定したグループにエントリを追加する"""
         if not isinstance(food, STOFC2015Food):
             raise ValueError('Not support type. type={}'.format(type(food)))

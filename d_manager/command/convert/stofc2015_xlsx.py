@@ -150,7 +150,7 @@ class ConvertSTOFC2015ExcelFileCommand(BaseCommand):
                 if row[0].value is not None and row[0].value.isdigit():
                     food = self.__get_food_from_row(row)
                     food_id = int(row[FOOD_ID_INDEX].value)
-                    food_book.append(food, food_id)
+                    food_book.append(food_id, food)
 
                     # 統計情報
                     group_id = int(row[GROUP_ID_INDEX].value)

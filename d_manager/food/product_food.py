@@ -1,8 +1,8 @@
 """市販の食品を表すクラス
 """
-from d_manager.food.classified_food import ClassifiedFood
+from d_manager.food import BaseFood
 
-# fixme
+# todo
 # # 出力時のキー
 # ID_KEY = 'id'
 # GROUP_ID_KEY = 'group_id'
@@ -12,36 +12,13 @@ from d_manager.food.classified_food import ClassifiedFood
 # MAKER_KEY = 'maker'
 # FOOD_KEY = 'food'
 
-# 選択可能な食品群
-# 日本食品標準成分表 2015 に収載されている食品群を採用
-GROUPS = {
-    1: '穀類',
-    2: 'いも及びでん粉類',
-    3: '砂糖及び甘味類',
-    4: '豆類',
-    5: '種実類',
-    6: '野菜類',
-    7: '果実類',
-    8: 'きのこ類',
-    9: '藻類',
-    10: '魚介類',
-    11: '肉類',
-    12: '卵類',
-    13: '乳類',
-    14: '油脂類',
-    15: '菓子類',
-    16: 'し好飲料類',
-    17: '調味料及び香辛料類',
-    18: '調理加工食品類',
-}
 
-
-class ProductFood(ClassifiedFood):
+class ProductFood(BaseFood):
     """食品表示法に準拠した表示事項を備える市販の食品"""
-    def __init__(self, group_id, id_in_group, maker_name, product_name, food_name, amount):
+    def __init__(self, maker_name, product_name, food_name, amount):
         self.product_name = product_name
         self.maker_name = maker_name
-        super(ProductFood, self).__init__(food_name, amount, group_id, id_in_group)
+        super(ProductFood, self).__init__(food_name, amount)
 
     # todo
     #  @staticmethod
