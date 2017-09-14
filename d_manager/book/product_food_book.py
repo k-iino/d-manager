@@ -101,7 +101,7 @@ class ProductFoodBook(BaseBook):
     def delete(self, total_id):
         """指定したエントリを削除する"""
         group_id, id_in_group = self.__get_group_id_and_id_in_group(total_id)
-        if id_in_group not in self._foods_by_group[group_id]:
+        if id_in_group not in self._foods_by_group[group_id].keys():
             raise ValueError('Not found. group_id={}, id_in_group={}'.format(group_id, id_in_group))
 
         c = self._foods_by_group[group_id][id_in_group]
@@ -112,7 +112,7 @@ class ProductFoodBook(BaseBook):
     def generator(self):
         for group_id in GROUPS.keys():
             for id_in_group, food in self._foods_by_group[group_id].items():
-                yield group_id, id_in_group, food
+                yield group_id, self.__get_total_id(group_id, id_in_group), food
 
     # def get_foods_by_group(self, group_number):
     #     """指定したグループに登録してある食品の辞書を返す"""
