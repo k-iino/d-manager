@@ -2,10 +2,10 @@ import datetime
 
 from d_manager.book import BaseBook
 from d_manager.meal import Meal
-from d_manager.helper.food_helper import FoodHelper
-from d_manager.food import ENERGY_KEY, PROTEIN_KEY, LIPID_KEY, CARBOHYDRATE_KEY, SALT_KEY
-from d_manager.food.product_food import ProductFood
-from d_manager.food.stofc2015_food import STOFC2015Food
+# from d_manager.helper.food_helper import FoodHelper
+# from d_manager.food import ENERGY_KEY, PROTEIN_KEY, LIPID_KEY, CARBOHYDRATE_KEY, SALT_KEY
+# from d_manager.food.product_food import ProductFood
+# from d_manager.food.stofc2015_food import STOFC2015Food
 
 
 class MealBook(BaseBook):
