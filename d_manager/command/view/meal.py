@@ -19,11 +19,13 @@ class ViewMealLogPickleFileCommand(BaseCommand):
         parser.add_argument("-t", "--type", type=str, default='csv',
                             required=False,
                             help="表示形式")
-        # parser.add_argument('-p', "--period", type=str, default='today',
-        #                     required=False,
-        #                     help="表示形式")
+        parser.add_argument('-s', "--summary",
+                            action="store_true",
+                            required=False,
+                            help="日毎の概要を表示")
         self.__args = parser.parse_args(args)
         self.__source_pickle = self.__args.meal_log
+        self.__is_summary = self.__args.summary
         if self.__args.type not in FORMATS.keys():
             raise ValueError('形式 {} には対応していません。'.format(self.__args.type))
         else:
@@ -35,6 +37,9 @@ class ViewMealLogPickleFileCommand(BaseCommand):
 
         if self.__output_format == 'csv':
             writer = CSVMealLogWriter()
-            writer.write(food_book)
+            if self.__is_summary:
+                writer.daily_summary(food_book)
+            else:
+                writer.write(food_book)
         elif self.__output_format == 'yaml':
             raise NotImplementedError
