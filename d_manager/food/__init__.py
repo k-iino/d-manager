@@ -70,7 +70,7 @@ class BaseFood:
     # 基本 5 項目
     # 熱量、たんぱく質、脂質、炭水化物、食塩相当量
 
-    # 熱ろう
+    # 熱量
     @property
     def energy(self):
         return self.__nutrients[Energy]
