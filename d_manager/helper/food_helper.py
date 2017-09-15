@@ -1,10 +1,10 @@
 from d_manager.food import BaseFood
-from d_manager.food import ENERGY_KEY, PROTEIN_KEY, LIPID_KEY, CARBOHYDRATE_KEY, SALT_KEY
 from d_manager.food.product_food import ProductFood
 from d_manager.food.stofc2015_food import STOFC2015Food
 
 
 class FoodHelper:
+    """食品に関する"""
     @staticmethod
     def get_actual_nutrients(food, scale):
         """食品とその食品の食品単位に対する摂取比率から、摂取した実際の栄養素の量を返す"""

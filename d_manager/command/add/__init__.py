@@ -1,9 +1,9 @@
 from d_manager.command import BaseCommand
 from d_manager.command.add import product_food
-# from d_manager.command.add import meal_log
+from d_manager.command.add import meal
 
 TARGETS = {'product_food': product_food.AddProductFoodCommand,
-           # 'meal_log': meal_log.AddMealLogCommand,
+           'meal': meal.AddMealCommand,
            }
 
 

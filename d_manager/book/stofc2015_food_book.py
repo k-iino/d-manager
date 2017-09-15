@@ -54,6 +54,7 @@ class STOFC2015FoodBook(BaseBook):
 
     def get_by_total_id(self, total_id):
         """食品全体の ID で食品を取得する"""
+        total_id = int(total_id)
         group_id = math.floor(total_id / 1000)
         id_in_group = total_id - group_id * 1000
         return self._foods_by_group[group_id][id_in_group]

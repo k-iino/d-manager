@@ -1,9 +1,9 @@
 import unittest
 import random
 
-from d_manager.food import ENERGY_KEY, PROTEIN_KEY, LIPID_KEY, CARBOHYDRATE_KEY, SALT_KEY
 from d_manager.food import BaseFood
-from d_manager.helper.unit_helper import Unit
+from d_manager.nutrient import BaseNutrient
+from d_manager.nutrient.basics import Energy, Protein, Lipid, Carbohydrate, SaltEquivalent
 from d_manager.helper.food_helper import FoodHelper
 
 
@@ -12,7 +12,11 @@ class FoodHelperTest(unittest.TestCase):
         """食品に摂取比率をかけた時に正しい栄養素の量が得られるか"""
         energy_unit = 'kcal'
         mass_unit = 'g'
-        nutrient_keys = (ENERGY_KEY, PROTEIN_KEY, LIPID_KEY, CARBOHYDRATE_KEY, SALT_KEY)
+        nutrient_keys = (BaseFood.ENERGY_KEY,
+                         BaseFood.PROTEIN_KEY,
+                         BaseFood.LIPID_KEY,
+                         BaseFood.CARBOHYDRATE_KEY,
+                         BaseFood.SALT_KEY)
 
         # ランダムに栄養素（数値列）を作成して、計算を行う
         random.seed()
@@ -22,27 +26,38 @@ class FoodHelperTest(unittest.TestCase):
             food = BaseFood('food one', '100g')
             scale = round(random.random() * 10, 1)
             nutrients = dict()
-            scaled_numbers = dict()
+            scaled_magnitude = dict()
 
             for key in nutrient_keys:
                 # 0 < n < 1000
-                _n = round(random.random() * 1000, 1)
+                _magnitude = round(random.random() * 1000, 1)
                 # 数字列を作成して、予め scale を計算したものを格納していおく
-                scaled_numbers[key] = _n * scale
+                scaled_magnitude[key] = _magnitude * scale
 
                 # 栄養素
-                if key == ENERGY_KEY:
-                    pq = '{}{}'.format(_n, energy_unit)
+                if key == BaseFood.ENERGY_KEY:
+                    _nutrient = Energy('{}{}'.format(_magnitude, energy_unit))
+                elif key == BaseFood.PROTEIN_KEY:
+                    _nutrient = Protein('{}{}'.format(_magnitude, mass_unit))
+                elif key == BaseFood.LIPID_KEY:
+                    _nutrient = Lipid('{}{}'.format(_magnitude, mass_unit))
+                elif key == BaseFood.CARBOHYDRATE_KEY:
+                    _nutrient = Carbohydrate('{}{}'.format(_magnitude, mass_unit))
+                elif key == BaseFood.SALT_KEY:
+                    _nutrient = SaltEquivalent('{}{}'.format(_magnitude, mass_unit))
                 else:
-                    pq = '{}{}'.format(_n, mass_unit)
+                    raise ValueError
 
-                nutrients[key] = pq
+                nutrients[key] = _nutrient
             else:
                 food.nutrients = nutrients
                 actual_nutrients = FoodHelper.get_actual_nutrients(food, scale)
                 # 栄養素毎に比較
                 for key in nutrient_keys:
-                    self.assertEqual(scaled_numbers[key], actual_nutrients[key].magnitude)
+                    actual_nutrient = actual_nutrients[key]
+                    assert isinstance(actual_nutrient, BaseNutrient)
+                    self.assertEqual(round(scaled_magnitude[key], actual_nutrient.significant_figure + 1),
+                                     actual_nutrient.magnitude)
 
     # def test_sum(self):
     #     food1 = BaseFood('food one', '100g')

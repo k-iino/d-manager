@@ -101,13 +101,7 @@ class InteractiveProductFoodBookLoader:
     def __confirm_and_add_food(group_id, food, book):
         group_name = GROUPS[group_id]
         Helper.print_msg('以下をグループ「{}」登録しますが、よろしいですか？'.format(group_name))
-        Helper.print_msg('製造者: {}'.format(food.maker_name),
-                         '商品名: {}'.format(food.product_name),
-                         '食品名: {}'.format(food.name),
-                         '食品単位: {:~P}'.format(food.amount))
-        for _class, nutrient in food.nutrients.items():
-            Helper.print_msg('{}: {}'.format(_class.name,
-                                             str(nutrient)))
+        Helper.print_product_food(food)
         if Helper.confirm_yes_of_no():
             _id = book.append(food, group_id)
             print('ID:{} として登録されました。'.format(_id))

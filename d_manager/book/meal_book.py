@@ -41,9 +41,10 @@ class MealBook(BaseBook):
             raise ValueError
 
     def generator(self):
-        for date, meals in self.__meals.items():
+        for _, meals in self.__meals.items():
+            # Meal には datetime が含まれているので、キーとなっている日付は使わない。
             for meal in meals:
-                yield date, meal
+                yield meal
 
     # def get_rows(self, is_label=True):
     #     """行の集合として出力する"""

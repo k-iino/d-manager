@@ -36,7 +36,7 @@ class Unit:
         if isinstance(units, cls.__ureg.Unit):
             return units
         elif isinstance(units, str):
-            cls.__ureg.parse_expression(units)
+            return cls.__ureg.parse_expression(units)
         # None を無理やり無次元量に置き換えると、呼び出し元で予想しない単位変換が起きる。
         # elif units is None:
         #     return cls.dimensionless

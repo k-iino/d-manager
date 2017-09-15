@@ -2,7 +2,7 @@ import pickle
 
 from d_manager.book.product_food_book import ProductFoodBook
 from d_manager.book.stofc2015_food_book import STOFC2015FoodBook
-# from d_manager.book.meal_book import MealBook
+from d_manager.book.meal_book import MealBook
 
 
 class BookPickleLoader:
@@ -32,6 +32,8 @@ class ProductFoodBookPickleLoader(BookPickleLoader):
             #         new_book.append(product_food, group_number, id_in_group)
 
 
+# load はスタティックメソッドでよい。
+# この辺の継承関係は調整したい。
 class STOFC2015FoodBookPickleLoader(BookPickleLoader):
     """Pickle ファイルから日本食品標準成分表2015年版（七訂）の食品を読み込むローダー"""
     def load(self):
@@ -42,11 +44,13 @@ class STOFC2015FoodBookPickleLoader(BookPickleLoader):
             else:
                 raise ValueError('不正な値です。 Pickle ファイルに予想とは異なる型のデータが含まれています。')
 
-# class MealBookPickleLoader(BookPickleLoader):
-#     def load(self):
-#         with open(self._pickle_file, mode='rb') as f:
-#             old_book = pickle.load(f)
-#             if not isinstance(old_book, MealBook):
-#                 raise ValueError('不正な値です。 Pickle ファイルに予想とは異なる型のデータが含まれています。')
-#             else:
-#                 return old_book
+
+class MealBookPickleLoader(BookPickleLoader):
+    """Pickle ファイルか食事ログを読み込むローダー"""
+    def load(self):
+        with open(self._pickle_file, mode='rb') as f:
+            old_book = pickle.load(f)
+            if not isinstance(old_book, MealBook):
+                raise ValueError('不正な値です。 Pickle ファイルに予想とは異なる型のデータが含まれています。')
+            else:
+                return old_book

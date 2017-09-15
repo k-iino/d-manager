@@ -4,8 +4,6 @@ from d_manager.helper.unit_helper import Unit
 class BaseNutrient:
     """栄養素のベースクラス"""
 
-    _ureg = Unit.unit_registry()
-
     def __init__(self, input_, units=None, ndigits=0):
         # 表示用の小数部の有効桁（小数第N位）
         self.__significant_figure = ndigits
@@ -17,20 +15,24 @@ class BaseNutrient:
 
         # 物理量の大きさを計算用の精度に丸め込む
         rounded_magnitude = round(self.__quantity.magnitude, self.__significant_figure_for_calc)
-        self.__quantity = self._ureg.Quantity(rounded_magnitude, self.__units)
+        self.__quantity = Unit.unit_registry().Quantity(rounded_magnitude, self.__units)
 
     def __add__(self, other):
         if isinstance(other, BaseNutrient):
             _q = self.__quantity + other.__quantity
             _q.to(self.__units)
-            return BaseNutrient(_q.magnitude, self.__units, self.__significant_figure)
+            # Pickle から元に戻した、栄養素は自身が参照している pint.UnitRegister が異なるため
+            # 単位の各種変換や比較が正しく出来ない、そのため文字列に変換してから現在の UnitRegister で Unit を作成しなおしている。
+            return BaseNutrient(_q.magnitude, str(self.__units), self.__significant_figure)
         else:
             raise NotImplementedError
 
     def __mul__(self, other):
         if isinstance(other, int) or isinstance(other, float):
             _m = self.__quantity.magnitude * other
-            return BaseNutrient(_m, self.__units, self.__significant_figure)
+            # Pickle から元に戻した、栄養素は自身が参照している pint.UnitRegister が異なるため
+            # 単位の各種変換や比較が正しく出来ない、そのため文字列に変換してから現在の UnitRegister で Unit を作成しなおしている。
+            return BaseNutrient(_m, str(self.__units), self.__significant_figure)
         # 次元のある量同士の計算だと次元が変わってしまうので
         # 栄養素同士の掛け算はここでは意義のない行為である。
         # elif isinstance(other, BaseNutrient):

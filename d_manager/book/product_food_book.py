@@ -53,6 +53,7 @@ class ProductFoodBook(BaseBook):
     @staticmethod
     def __get_group_id_and_id_in_group(food_id):
         """食品の総合 ID からグループ ID とグループ内 ID を得る"""
+        food_id = int(food_id)
         group_id = math.floor(int(food_id) / 1000)
         if group_id not in GROUPS.keys():
             raise ValueError('Not found group number. number={}'.format(group_id))

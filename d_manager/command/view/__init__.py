@@ -1,9 +1,9 @@
 from d_manager.command import BaseCommand
 from d_manager.command.view.product_food import ViewProductFoodPickleFileCommand
 from d_manager.command.view.stofc2015_food import ViewSTOFC2015PickleFileCommand
-from d_manager.command.view.meal_log import ViewMealLogPickleFileCommand
+from d_manager.command.view.meal import ViewMealLogPickleFileCommand
 
-TARGETS = {'meal_log': ViewMealLogPickleFileCommand,
+TARGETS = {'meal': ViewMealLogPickleFileCommand,
            'product_food': ViewProductFoodPickleFileCommand,
            'stofc2015_food': ViewSTOFC2015PickleFileCommand,
            }

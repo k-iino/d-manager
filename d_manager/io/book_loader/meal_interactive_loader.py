@@ -9,7 +9,7 @@ from d_manager.meal import MealItem
 from d_manager.meal import Meal
 
 
-class InteractiveMealBookLoader:
+class MealInteractiveLoader:
     """対話的に市販食品を読み込む"""
     def __init__(self, food_books):
         self.food_books = dict()
