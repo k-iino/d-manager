@@ -103,7 +103,7 @@ class InteractiveProductFoodBookLoader:
         Helper.print_msg('以下をグループ「{}」登録しますが、よろしいですか？'.format(group_name))
         Helper.print_product_food(food)
         if Helper.confirm_yes_of_no():
-            _id = book.append(food, group_id)
+            _id = book.append(group_id, food)
             print('ID:{} として登録されました。'.format(_id))
         else:
             print('登録がキャンセルされました。')
@@ -112,12 +112,12 @@ class InteractiveProductFoodBookLoader:
         """対話的に食品を読み込む"""
         while True:
             group_id, _ = self.__get_group()
-            maker_name, product_name, food_name = self.__get_product_labeling()
+            maker_name, product_name, common_name = self.__get_product_labeling()
             declaration_unit = self.__get_declaration_unit()
             nutrients = self.__get_nutrients(declaration_unit)
             product_food = ProductFood(maker_name=maker_name,
                                        product_name=product_name,
-                                       food_name=food_name,
+                                       common_name=common_name,
                                        amount=declaration_unit)
             product_food.nutrients = nutrients
             # 登録

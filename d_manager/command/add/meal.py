@@ -35,12 +35,12 @@ class AddMealCommand(BaseCommand):
         # 食事を対話的に読み込む
         # d-manager add meal -c config
         parser = argparse.ArgumentParser(description='食事ログを追加する。')
-        parser.add_argument("-c", "--config", type=str,
-                            required=True,
-                            help="設定ファイル")
-        parser.add_argument("-i", "--input", type=str,
+        parser.add_argument("-m", "--meal", type=str,
                             required=True,  # 現状は YAML ファイルのみ
                             help="食事内容が記録された入力ファイル（YAML形式）")
+        parser.add_argument("-c", "--config", type=str,
+                            required=False,
+                            help="設定ファイル")
         parser.add_argument('-f', '--force',
                             required=False,
                             action="store_true",
@@ -51,28 +51,25 @@ class AddMealCommand(BaseCommand):
         parsed_args = parser.parse_args(args)
 
         # 入力ファイル
-        self.__meal_input = parsed_args.input
+        self.__meal_input = parsed_args.meal
         # 確認せずに強制的に書き込むか
         self.__force = parsed_args.force
 
-        # 設定ファイル
-        # コマンドオプションを優先する
-        if parsed_args.config is not None:
-            # 環境変数で指定されたディレクトリ以下の設定ファイルを読み込む
-            self.config_file = None
-            if D_MANAGER_PATH in os.environ:
-                d_home_dir = os.environ[D_MANAGER_PATH]
-                if os.path.exists(d_home_dir) and os.path.isdir(d_home_dir):
-                    self.config_file = os.path.join(d_home_dir, DEFAULT_CONF_FILE)
-                else:
-                    raise EnvironmentError('設定ファイルが見つかりません.',
-                                           ' 環境変数 {} の内容が不正です。'.format(d_home_dir),
-                                           '存在しないかディレクトリでありません。')
+        # 設定ファイルを優先する
+        if D_MANAGER_PATH in os.environ:
+            d_home_dir = os.environ[D_MANAGER_PATH]
+            if os.path.exists(d_home_dir) and os.path.isdir(d_home_dir):
+                self.config_file = os.path.join(d_home_dir, DEFAULT_CONF_FILE)
             else:
-                raise EnvironmentError('設定ファイルが見つかりません。',
-                                       '環境変数にもコマンドのオプションとしても指定されていません。')
-        else:
+                raise EnvironmentError('設定ファイルが見つかりません.',
+                                       ' 環境変数 {} の内容が不正です。'.format(d_home_dir),
+                                       '存在しないかディレクトリでありません。')
+        elif parsed_args.config is not None:
+            # 環境変数で指定されたディレクトリ以下の設定ファイルを読み込む
             self.config_file = parsed_args.config
+        else:
+            raise EnvironmentError('設定ファイルが指定されていません。',
+                                   '環境変数にもコマンドのオプションとしても指定されていません。')
 
 
     def do(self):

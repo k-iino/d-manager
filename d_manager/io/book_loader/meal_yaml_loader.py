@@ -8,6 +8,8 @@ from d_manager.book.meal_book import MealBook
 from d_manager.config.meal_yaml_config import MealYAMLConfig
 from d_manager.nutrient.basics import Energy, Protein, Lipid, Carbohydrate, SaltEquivalent
 from d_manager.helper.datetime_helper import DateTimeHelper
+from d_manager.io.book_loader.pickle_book_loader import STOFC2015FoodBookPickleLoader
+from d_manager.io.book_loader.pickle_book_loader import ProductFoodBookPickleLoader
 
 # 各要素のキー
 DATETIME_KEY = 'datetime'
@@ -55,7 +57,15 @@ class MealYAMLLoader:
             _type = _t[0]
             _id = int(_t[1])
             _scale = float(_t[2])
-            _food_book = self.__config.get_book_from_type(_type)
+            _food_book_file = self.__config.get_book_from_type(_type)
+            if _type == 'product':
+                loader = ProductFoodBookPickleLoader(_food_book_file)
+                _food_book = loader.load()
+            elif _type == 'stofc2015':
+                loader = STOFC2015FoodBookPickleLoader(_food_book_file)
+                _food_book = loader.load()
+            else:
+                raise NotImplementedError
             # 全ての Book クラスに以下のメソッドが実装されていること前提。
             _food = _food_book.get_by_total_id(_id)
             meal_items.append(MealItem(_food, _scale))

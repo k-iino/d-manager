@@ -11,6 +11,7 @@ PRODUCT_FOOD_BOOK_TYPE = 'product'
 class MealYAMLConfig:
     """食事に関する設定"""
     def __init__(self, yf):
+        self.yaml_file = yf
         # 食品 Book
         # 種類から、 Book を呼び出せるようにしたもの
         self.__type_to_book = dict()
@@ -25,11 +26,15 @@ class MealYAMLConfig:
         # 食品データベース
         for food_book in config['food_book']:
             if food_book['type'] == PRODUCT_FOOD_BOOK_TYPE:
-                _book = ProductFoodBookPickleLoader(food_book['file']).load()
-                self.__type_to_book[PRODUCT_FOOD_BOOK_TYPE] = _book
+                # ファイルが存在しない場合もあるのでパスをセットしておく
+                #_book = ProductFoodBookPickleLoader(food_book['file']).load()
+                # self.__type_to_book[PRODUCT_FOOD_BOOK_TYPE] = _book
+                self.__type_to_book[PRODUCT_FOOD_BOOK_TYPE] = food_book['file']
             elif food_book['type'] == STOFC2015_FOOD_BOOK_TYPE:
-                _book = STOFC2015FoodBookPickleLoader(food_book['file']).load()
-                self.__type_to_book[STOFC2015_FOOD_BOOK_TYPE] = _book
+                # ファイルが存在しない場合もあるのでパスをセットしておく
+                # _book = STOFC2015FoodBookPickleLoader(food_book['file']).load()
+                # self.__type_to_book[STOFC2015_FOOD_BOOK_TYPE] = _book
+                self.__type_to_book[STOFC2015_FOOD_BOOK_TYPE] = food_book['file']
             else:
                 raise NotImplementedError('{} というタイプの food_book には未対応'.format(food_book['type']))
 

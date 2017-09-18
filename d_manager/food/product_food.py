@@ -15,9 +15,11 @@ from d_manager.food import BaseFood
 
 class ProductFood(BaseFood):
     """食品表示法に準拠した表示事項を備える市販の食品"""
-    def __init__(self, maker_name, product_name, food_name, amount):
+    def __init__(self, maker_name, product_name, common_name, amount):
         self.product_name = product_name
         self.maker_name = maker_name
+        self.common_name = common_name  # 一括表示の「名称」欄の内容
+        food_name = '{}%{}'.format(self.maker_name, self.product_name)
         super(ProductFood, self).__init__(food_name, amount)
 
     # todo
