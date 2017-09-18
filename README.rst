@@ -10,7 +10,7 @@ d-manager: Dietary manager
 簡単な使い方
 ***************
 
-以下のような YAML 形式のファイルに食品情報を記述して、コマンドの引数にとして渡すと、現在時刻の食事としてデータベースに食事データを記録します。
+以下のような YAML 形式のファイルに食品情報を記述して、コマンドの引数として渡すと、現在時刻の食事としてデータベースに食事データを記録します。
 
 .. code-block:: shell
 
@@ -27,7 +27,7 @@ d-manager: Dietary manager
       3), 分類: し好飲料類 コーヒー・ココア類, 食品名: コーヒー 浸出液, 量: 150.0 g, 熱量: 6.0 kcal, たんぱく質: 0.3 g, 脂質: 0.0 g, 炭水化物: 1.1 g, 食塩相当量: 0.0 g
     [Y/n]> Y
 
-食事内容は、どの食品データベースか、データベース内の食品 ID、食品単位に対する量を記述します。
+食事内容には、どの食品データベースか、データベース内の食品 ID、食品単位に対する量を記述します。
 食品データベース、食事データベース等の作成方法や設定方法は後述します。
 
 データベースに記録した食事は、以下のように一覧で csv で閲覧できます。
@@ -133,11 +133,9 @@ d-manager: Dietary manager
    food_book:
      -
        file: /home/user/dev/.d-manager/stofc2015
-       prefix: s
        type: stofc2015
      -
        file: /home/user/dev/.d-manager/product_food_book
-       prefix: p
        type: product
    meal_book: /home/user/.d-manager/meals
 
