@@ -1,9 +1,40 @@
-from d_manager.helper.unit_helper import Unit
+from d_manager.quantity.unit import Unit
+from d_manager.quantity.unit import Dimension
 
+
+class Nutrient:
+    def __init__(self, name, quantity):
+        self.name = name
+        self.quantity = quantity
+
+    def __add__(self, other):
+        if isinstance(other, Nutrient):
+            self.quantity += other.quantity
+            return self
+        else:
+            msg = '栄養素同士以外の加算は出来ません。'
+            raise ValueError(msg)
+
+    def __mul__(self, other):
+        if isinstance(other, (int, float)):
+            self.quantity *= other
+            return self
+        else:
+            msg = 'この型を栄養素に乗算することは出来ません。 {}'.format(other)
+            raise ValueError(msg)
+
+# class EnergyBuilder(NutrientBuilder):
+#     name_of_nutrient = 'energy'
+#     # デフォルト値
+#     default_unit = Unit.kilocalorie
+#     default_ndigits = 1
+#
+#     def __init__(self, unit=default_unit, ndigits=default_ndigits):
+#         super(EnergyBuilder, self).__init__(self.name_of_nutrient, Dimension.energy,
+#                                             unit, ndigits)
 
 class BaseNutrient:
     """栄養素のベースクラス"""
-
     def __init__(self, input_, units=None, ndigits=0):
         # 表示用の小数部の有効桁（小数第N位）
         self.__significant_figure = ndigits
@@ -94,7 +125,7 @@ class HasDefaultSignificantFigure:
 
 class HasDefaultUnit:
     """デフォルトの単位を所持することを表す"""
-    _default_units = Unit.dimensionless
+    _default_units = Dimension.dimensionless
 
     @classmethod
     def default_units(cls):

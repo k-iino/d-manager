@@ -1,13 +1,27 @@
-from d_manager.helper.unit_helper import Unit
 from d_manager.nutrient import BaseNutrient
-from d_manager.nutrient.basics import Energy, Protein, Lipid, Carbohydrate, SaltEquivalent
+#from d_manager.nutrient.basics import Energy, Protein, Lipid, Carbohydrate, SaltEquivalent
+from d_manager.quantity.unit import Unit
+from d_manager.quantity.quantity import FoodQuantity
+
+
+class Food:
+    def __init__(self, name, amount):
+        self.name = str(name)
+        self.nutrients = dict()
+        # 食品単位
+        # 食事に含まれる栄養素がどれくらいの量の食品における含有量かを示す基準となる量。
+        # 例えば一般の加工食品だったら「栄養成分表示」に食品単位が重量か体積で示されている
+        self.amount = FoodQuantity.from_str(amount)
+
+    def set_nutrient(self, name, nutrient):
+        self.nutrients[name] = nutrient
 
 
 class BaseFood:
     """基本となる食品クラス"""
     # NAME_KEY = 'name'
     # AMOUNT_KEY = 'amount'
-    # NUTRIENT_KEY = 'nutrient'
+    # NUTRIENT_KEY = 'helper'
     # # 栄養素のキー
     # ENERGY_KEY = 'energy'
     # PROTEIN_KEY = 'protein'
@@ -16,7 +30,7 @@ class BaseFood:
     # SALT_KEY = 'salt_equivalent'
     # SODIUM_KEY = 'sodium'
 
-    def __init__(self, name, amount):
+    def __init__(self, name, amount, ):
         self.name = str(name)
 
         # 食品単位
@@ -32,6 +46,11 @@ class BaseFood:
             raise ValueError('{} の量の次元が不正。 value:{}'.format(name, _q.units))
 
         self.__nutrients = dict()
+
+    @staticmethod
+    def from_json(j):
+        food = BaseFood(j['name'], j['amount'])
+        return food
         
     # 栄養素に関するその他事項
     # 有効数字については、各栄養素のクラスで決定している。

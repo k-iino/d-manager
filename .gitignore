@@ -1,6 +1,9 @@
 # 入力ファイル群
 *.xlsx
 
+# プロジェクト作成中の実験用ディレクトリ
+sandbox/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

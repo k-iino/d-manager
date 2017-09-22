@@ -8,23 +8,15 @@ import os
 
 
 if __name__ == '__main__':
-    # モジュール検索パスをセットする
-    #
-    # シンボリックリンク経由での呼び出しも考慮する。
-    # sys.path にはシンボリックリック経由で読み込んでも、
-    # リンク先のスクリプトのパスが渡される。
-    # ただし、os.getcwd() で取得出来るパスはスクリプト実行時のカレントディレクトリで
-    # __file__ はシンボリックリンクのパスになっている。
-    # 呼び出し元のシンボリックリンクを辿って、パスをセットする。
-    project_workdir = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), os.pardir))
-    sys.path.append(project_workdir)
+    # プロジェクトのホームディレクトリをモジュール検索パスにセットする
+    real_path = os.path.realpath(__file__)
+    bindir = os.path.dirname(real_path)
+    project_homedir = os.path.abspath(os.path.join(bindir, os.pardir))
+    sys.path.append(project_homedir)
 
+    # サブコマンドによって読み込むモジュールを動的に変える
     cmd_module = sys.argv[1]
-    cmd_class_name = cmd_module.capitalize()
-    # C_ = getattr(__import__('d_manager.command.%s' % genre,
-    #                         fromlist=[cmd_class]), cmd_class)
-    # cmd = C_(sys.argv[2:])
-    # cmd.do()
+    cmd_class_name = '{}Command'.format(cmd_module.capitalize())
     cmd_class = getattr(__import__('d_manager.command.%s' % cmd_module,
                                    fromlist=[cmd_class_name]),
                         cmd_class_name)

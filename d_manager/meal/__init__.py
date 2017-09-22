@@ -1,5 +1,5 @@
 from d_manager.food import BaseFood
-from d_manager.helper.datetime_helper import DateTimeHelper
+#from d_manager.helper.datetime_helper import DateTimeHelper
 
 
 class MealItem:
@@ -27,8 +27,8 @@ class MealItem:
     #     """scale を反映した食品の量を返す"""
     #     return self.food.amount * self.scale
     #
-    # def set_nutrient(self, nutrient):
-    #     self.food.nutrient = nutrient
+    # def set_nutrient(self, helper):
+    #     self.food.helper = helper
     #
     # def get_scaled_nutrients(self):
     #     """scale を反映した量の栄養素の辞書を返す"""
