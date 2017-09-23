@@ -43,6 +43,7 @@ class BasicNutrientsProvider:
     def _set_builder(self, name, dimension, unit, ndigits):
         self.builders[name] = NutrientBuilder(name, dimension, unit, ndigits)
 
-    def provide_from_str(self, name, amount):
+    def provide_from_str(self, name, amount_str):
         """指定した名前の栄養素を文字列から生成する"""
-        return self.builders[name].build_from_str(amount)
+        # todo パース不可能な栄養素が合った場合は、独自例外を投げて呼び出し元に通知する
+        return self.builders[name].build_from_str(amount_str)

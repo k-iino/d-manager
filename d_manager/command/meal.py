@@ -4,7 +4,7 @@ import sys
 
 from d_manager.food.builder import FoodBuilder
 from d_manager.nutrient.provider.basic import BasicNutrientsProvider
-from d_manager.meal import Meal
+from d_manager.meal.builder import MealBuilder
 
 FOODS_DATABASE_ROOT_DIR_ENVVAR = 'D_MANAGER_FOODS'
 
@@ -20,6 +20,7 @@ class MealCommand:
             raise EnvironmentError('環境変数 {} が設定されていません。'.format(FOODS_DATABASE_ROOT_DIR_ENVVAR))
 
     def _get_food_json(self, genre, food_id):
+        """分類情報と食品 ID を元に食品データベースから食品情報の JSON を取得する"""
         food_json = None
 
         genre_dir = os.path.join(self.food_db_root, genre)
@@ -50,10 +51,14 @@ class MealCommand:
                 meal_src = json.dumps(stdin)
 
         # 食品情報
-        nutrient_provider = BasicNutrientsProvider()
+        # if より細かい栄養素の表示をするフラグ :
+        #     nutrient_provider = OtherNutrientsProvider()
+        # else:
+        nutrient_provider = BasicNutrientsProvider()  # 基本的な栄養素
         food_builder = FoodBuilder(nutrient_provider)
+
         # 食事情報
-        meal = Meal()
+        meal_builder = MealBuilder()
 
         # JSON のパース
         for i in meal_src:
@@ -64,9 +69,9 @@ class MealCommand:
             # 食事情報
             food = self._get_food_json(genre, int(food_id))
             food = food_builder.build(food['name'], food['amount'], food['nutrients'])
-            meal.append_food(food, scale)
+            meal_builder.append_food(food, scale)
 
-        print(meal.to_json())
+        print(meal_builder.build_json())
 
 if __name__ == '__main__':
     cmd = MealCommand(sys.argv)
