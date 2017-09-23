@@ -48,7 +48,7 @@ class MealCommand:
             for l in sys.stdin:
                 stdin += l
             else:
-                meal_src = json.dumps(stdin)
+                meal_src = json.loads(stdin)
 
         # 食品情報
         # if より細かい栄養素の表示をするフラグ :

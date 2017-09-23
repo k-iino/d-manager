@@ -33,7 +33,7 @@ class MealBuilder:
                 d[NUTRIENTS_KEY][k] = str(nutrient.quantity.round(nutrient.ndigits))
             jl.append(d)
 
-        return json.dumps(jl)
+        return json.dumps(jl, ensure_ascii=False, indent=2)
 
     def append_food(self, food, scale):
         """
