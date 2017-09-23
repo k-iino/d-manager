@@ -26,7 +26,7 @@ class MealCommand:
         genre_dir = os.path.join(self.food_db_root, genre)
         for file in os.listdir(genre_dir):
             name, _ = os.path.splitext(file)
-            if int(name) == food_id:
+            if name.isdigit() and int(name) == food_id:
                 json_file = os.path.join(genre_dir, file)
                 with open(json_file) as jf:
                     food_json = json.load(jf)

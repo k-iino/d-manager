@@ -15,7 +15,7 @@ d-manager: Dietary manager
 
 用意した食品データベースから食品の情報を JSON 形式のテキストで取得出来ます。
 
-以下のように食品の分類名、食品 ID、摂取割合を JSON でコマンド `d_manager meal` に標準入力で渡します。
+以下のように、食品の情報を記述した JSON をコマンド `d_manager meal` に標準入力で渡します。
 
 .. code-block:: shell
 
