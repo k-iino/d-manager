@@ -1,5 +1,7 @@
 from d_manager.quantity import _ureg
 
+from d_manager.quantity import _Quantity
+
 
 class Dimension:
     """次元に関するクラス"""
@@ -55,6 +57,8 @@ class Unit:
             return i
         elif isinstance(i, _ureg.Quantity):
             return i.units
+        elif isinstance(i, _Quantity):
+            return i.unit
         elif isinstance(i, str):
             return _ureg.parse_expression(i).units
         # None を無理やり無次元量に置き換えると、呼び出し元で予想しない単位変換が起きる。
