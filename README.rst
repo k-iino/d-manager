@@ -84,6 +84,30 @@ d-manager: Dietary manager
     TODO
 
 ***************
+動作環境
+***************
+
+以下の環境で動作確認済みです。
+
+* Debian GNU/Linux 8 (jessie)
+* Python 3.x
+
+***************
+インストール
+***************
+
+手元の環境に当リポジトリをチェックアウトします。
+
+必要なプラグインを Python 環境にインストールします。
+
+.. code-block:: shell
+
+   $ pip install -r requirements.txt
+
+`bin/d-manager` がコマンドの本体です。
+このファイルへのシンボリック・リンクをコマンド探索パスの通ったディレクトリに張るなどすれば、インストールは完了です。
+
+***************
 詳細
 ***************
 
@@ -138,7 +162,7 @@ d-manager: Dietary manager
 
 入力値は JSON 形式のテキストで、以下の配列を要素を持つ配列です。
 
-.. code-block:: json
+.. code-block:: shell
 
     [分類, 食品 ID, 食品の基準量に対する割合]
 
