@@ -5,6 +5,10 @@
 
 import sys
 import os
+import re
+
+# コマンド・クラス名につく接尾辞
+COMMAND_CLASS_SUFFIX = 'Command'
 
 
 if __name__ == '__main__':
@@ -16,7 +20,9 @@ if __name__ == '__main__':
 
     # サブコマンドによって読み込むモジュールを動的に変える
     cmd_module = sys.argv[1]
-    cmd_class_name = '{}Command'.format(cmd_module.capitalize())
+    # モジュール内のクラス名は、スネークケースをキャメルケースに変換してコマンド・クラス名を表す接尾辞を付ける
+    _t = re.sub('_(.)', lambda x: x.group(1).upper(), cmd_module.capitalize())
+    cmd_class_name = '{}{}'.format(_t, COMMAND_CLASS_SUFFIX)
     cmd_class = getattr(__import__('d_manager.command.%s' % cmd_module,
                                    fromlist=[cmd_class_name]),
                         cmd_class_name)
