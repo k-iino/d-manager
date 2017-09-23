@@ -67,39 +67,6 @@ class _Quantity:
         """
         return self.q.units
 
-    # fixme or deleteme. 不必要か
-    # @classmethod
-    # def __numeric_value_to_quantity(cls, num, units=None):
-    #     if units is None:
-    #         # 単位の指定がなければ無次元だと解釈する
-    #         _units = Dimension.dimensionless
-    #         return _Quantity(num, _units)
-    #     else:
-    #         # 指定があった次元の大きさだと解釈する
-    #         _units = Unit.get(units)
-    #         return _Quantity(num, _units)
-    #
-    # @classmethod
-    # def from_str(cls, input_string, units=None):
-    #     """文字列を単位に変換する。"""
-    #     _pq = _ureg.parse_expression(input_string)
-    #
-    #     # parse_expression の仕様で '1' や '1.0' が、渡された場合は
-    #     # 無次元の量が返るのではなく、単に int や float の値が返るのでよろしくない
-    #     if isinstance(_pq, (int, float)):
-    #         # 指定された単位があれば、その単位の量を求められていると解釈している
-    #         return cls.__numeric_value_to_quantity(_pq, units)
-    #     elif isinstance(_pq, _ureg.Quantity):
-    #         # 単位に指定があったら単位に置き換える
-    #         if units is not None:
-    #             _units = Unit.get(units)
-    #             _pq = _pq.to(_units)
-    #             return _Quantity(_pq.m, _pq.u)
-    #         else:
-    #             return _Quantity(_pq.m, _pq.u)
-    #     else:
-    #         raise ValueError("{} は物理量に変換できません。".format(input_string))
-
 
 class NutrientQuantity(_Quantity):
     """栄養素の物理量"""

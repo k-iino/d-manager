@@ -62,8 +62,3 @@ class Unit:
         #     return Dimension.dimensionless
         else:
             raise NotImplementedError(i)
-
-    # fixme 要らないかも
-    # @classmethod
-    # def unit_registry(cls):
-    #     return _ureg

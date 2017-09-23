@@ -1,7 +1,7 @@
 import json
 import sys
 
-from d_manager.meal.meal import Meal
+from d_manager.meal import Meal
 from d_manager.food.builder import FoodBuilder
 from d_manager.nutrient.provider.basic import BasicNutrientsProvider
 

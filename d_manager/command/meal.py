@@ -4,7 +4,7 @@ import sys
 
 from d_manager.food.builder import FoodBuilder
 from d_manager.nutrient.provider.basic import BasicNutrientsProvider
-from d_manager.meal.meal import Meal
+from d_manager.meal import Meal
 
 FOODS_DATABASE_ROOT_DIR_ENVVAR = 'D_MANAGER_FOODS'
 
@@ -19,19 +19,19 @@ class MealCommand:
         else:
             raise EnvironmentError('環境変数 {} が設定されていません。'.format(FOODS_DATABASE_ROOT_DIR_ENVVAR))
 
-    def _get_food_json(self, genre, id):
+    def _get_food_json(self, genre, food_id):
         food_json = None
 
         genre_dir = os.path.join(self.food_db_root, genre)
         for file in os.listdir(genre_dir):
             name, _ = os.path.splitext(file)
-            if int(name) == id:
+            if int(name) == food_id:
                 json_file = os.path.join(genre_dir, file)
                 with open(json_file) as jf:
                     food_json = json.load(jf)
 
         if food_json is None:
-            raise FileNotFoundError('ディレクトリ: {}, ID: {}'.format(genre_dir, id))
+            raise FileNotFoundError('ディレクトリ: {}, ID: {}'.format(genre_dir, food_id))
         else:
             return food_json
 
