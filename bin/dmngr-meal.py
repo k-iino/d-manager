@@ -20,6 +20,7 @@ import sys
 import subprocess
 import datetime
 import argparse
+import json
 
 from helper.date import get_date
 from helper.date import get_meal_file_path
@@ -76,7 +77,16 @@ if __name__ == '__main__':
 
     # 出力
     result = p.stdout.decode('utf-8')
-    with open(meal_path, mode='w') as f:
-        f.write(result)
+    if result is not None:
+        # JSON にパース出来るか確認
+        try:
+            json.loads(result)
+        except json.decoder.JSONDecodeError as e:
+            raise e
+
+        with open(meal_path, mode='w') as f:
+            f.write(result)
+    else:
+        raise ValueError('結果が空')
 
     print(result)
