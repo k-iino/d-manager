@@ -122,18 +122,19 @@ def get_meal_file_name(dt):
     return dt.strftime(MEAL_FILE_NAME_FORMAT) + MEAL_FILE_EXT
 
 
-def get_meal_file_full_path(meal_datetime):
+def get_meal_file_full_path(meal_datetime, create_dir=False):
     """
     食事記録ファイルのパスを日付から取得
 
     :param meal_datetime:
+    :param create_dir:
     :return: 食事記録ファイルのパス
     """
     # ディレクトリ準備
     # 日付から食事記録を格納するディレクトリパスを決定
     meal_dir = get_meal_dir_path(meal_datetime,
                                  base_dir=os.environ[ENV_MEALS_DIR])
-    if not os.path.exists(meal_dir):
+    if not os.path.exists(meal_dir) and create_dir:
         os.makedirs(meal_dir)
 
     # ファイルのパスを作成
@@ -197,7 +198,7 @@ def meal():
 
     # 対応する日付ファイルに食事内容を追記
     meal_datetime = get_datetime(date_str)
-    meal_file_path = get_meal_file_full_path(meal_datetime)
+    meal_file_path = get_meal_file_full_path(meal_datetime, create_dir=True)
     meal_json = append_meal(meal_file_path,
                             meal_datetime.time(),
                             new_meal_json)
@@ -247,14 +248,14 @@ def adjust():
 
     # 対応する日付ファイルに食事内容を追記
     adjust_datetime = get_datetime(datetime_str)
-    meal_file_path = get_meal_file_full_path(adjust_datetime)
+    meal_file_path = get_meal_file_full_path(adjust_datetime, create_dir=True)
     meal_json_in_day = append_meal(meal_file_path,
                                    adjust_datetime.time(),
                                    adjust_meal_json)
     print(meal_json_in_day)
 
 
-def summary():
+def summary(args=None, return_value=False):
     """対象の日付の食事に含まれる栄養成分の総計を取得する"""
     parser = argparse.ArgumentParser(description='対象の日付の食事に含まれる栄養成分の総計を取得する')
     parser.add_argument('datetime',
@@ -263,14 +264,17 @@ def summary():
                         nargs='?',
                         default='today',
                         help='日時')
-    parsed_args = parser.parse_args()
+    if args:
+        parsed_args = parser.parse_args(args)
+    else:
+        parsed_args = parser.parse_args()
     datetime_str = parsed_args.datetime.lower()
 
-    # 対応する日付ファイルに食事内容を追記
+    # 対応する日付
     target_date = get_datetime(datetime_str)
 
     # ターゲットの日付の食事記録を取得
-    meal_file_path = get_meal_file_full_path(target_date)
+    meal_file_path = get_meal_file_full_path(target_date, create_dir=True)
     with open(meal_file_path, mode='r') as mf:
         meal_in_day = json.load(mf)
 
@@ -281,7 +285,68 @@ def summary():
 
     # d-manager summary でまとめた食事内容の内容を集計する
     summary_json = d_manager_summary(json.dumps(meals_for_summary, indent=True))
-    print(summary_json)
+    if return_value:
+        return summary_json
+    else:
+        print(summary_json)
+
+
+def summary_all():
+    """過去の食事記録をまとめて出力する"""
+    parser = argparse.ArgumentParser(description='対象の日付の食事に含まれる栄養成分の総計を取得する')
+    parser.add_argument('start',
+                        metavar='START',
+                        type=str,
+                        help='出力する開始日')
+    parser.add_argument('end',
+                        metavar='END',
+                        type=str,
+                        help='出力する終了日')
+    parser.add_argument('output_type',
+                        metavar='OUTPUT_TYPE',
+                        type=str,
+                        nargs='?',
+                        default='csv',
+                        help='出力タイプ')
+    parsed_args = parser.parse_args()
+    output_type = parsed_args.output_type
+
+    # 出力期間の開始日と終了日
+    start_date = get_datetime(parsed_args.start).date()
+    end_date = get_datetime(parsed_args.end).date()
+    if not end_date >= start_date:
+        msg = '終了日は開始日以降の日付である必要があります。開始日: {}, 終了日: {}'.format(start_date, end_date)
+        raise ValueError(msg)
+
+    output_data = dict()
+    one_day = datetime.timedelta(days=1)
+    while end_date >= start_date:
+        _args = [str(start_date), ]
+        try:
+            _json_str = summary(_args, return_value=True)
+            _summary = json.loads(_json_str)
+            output_data[start_date] = _summary
+        except FileNotFoundError:
+            pass
+
+        start_date += one_day
+
+    if not len(output_data) > 0:
+        msg = '対象期間内に食事データは存在しません。開始日: {}, 終了日: {}'.format(start_date, end_date)
+        raise ValueError(msg)
+
+    if output_type.lower() == 'csv':
+        print('date, energy [kcal], protein [g], lipid [g], carbohydrate [g], salt [g]')
+        for d, s in output_data.items():
+            line = '{}, {}, {}, {}, {}, {}'.format(str(d),
+                                                   s['energy'].rstrip('kcal').strip(),
+                                                   s['protein'].rstrip('g').strip(),
+                                                   s['lipid'].rstrip('g').strip(),
+                                                   s['carbohydrate'].rstrip('g').strip(),
+                                                   s['salt'].rstrip('g').strip())
+            print(line)
+    else:
+        raise NotImplementedError(output_type)
 
 
 def ratio():
@@ -310,6 +375,7 @@ def ratio():
 
 CMD_DISPATCH_TABLE = {'dmngr-meal': meal,
                       'dmngr-summary': summary,
+                      'dmngr-summary-all': summary_all,
                       'dmngr-adjust': adjust,
                       'dmngr-ratio': ratio,
                       }
