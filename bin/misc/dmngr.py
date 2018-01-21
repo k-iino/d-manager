@@ -10,6 +10,7 @@ import subprocess
 import datetime
 import argparse
 import json
+from json.decoder import JSONDecodeError
 
 # 環境変数
 ENV_MEALS_DIR = 'D_MANAGER_MEALS'
@@ -70,7 +71,11 @@ def d_manager_summary(json_str):
         # todo
         # JSON にパース出来るかでコマンドが成功しているかを確認しているが、
         # コマンドの成功、失敗を別な方法で確認できれば、不要である
-        json.loads(result)
+        try:
+            json.loads(result)
+        except JSONDecodeError as jde:
+            print('error: {}'.format(result))
+            raise jde
         return result
     else:
         raise ValueError('結果が空')
