@@ -229,6 +229,10 @@ def adjust():
         json_str += l
 
     adjust_nutrients = json.loads(json_str)
+
+    if len(adjust_nutrients) > 5:
+        raise ValueError('指定された値の数が多い。{}'.format(adjust_nutrients))
+
     # 栄養素の配列が入力されることを前提とする
     energy = float(adjust_nutrients[0])
     protein = float(adjust_nutrients[1])
